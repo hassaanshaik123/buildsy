@@ -70,7 +70,6 @@ export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number>(1);
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [quickIdea, setQuickIdea] = useState("");
-  const [introKey, setIntroKey] = useState(0);
 
   const handleQuickStart = (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,19 +83,14 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#f9fcfa] text-[#0c1510] selection:bg-[#d1fae5] selection:text-[#065f46]">
       {/* Welcoming Intro Animation ("buildsy.me" + "Get your personalized budget tool stack") */}
-      <WelcomeIntro key={introKey} />
+      <WelcomeIntro />
 
       {/* Top Navbar (Matches hero-page.png) */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-[#eaf2ed]">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-8 h-20 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => setIntroKey((k) => k + 1)}
-            title="Replay buildsy.me welcome intro"
-            className="flex items-center cursor-pointer"
-          >
+          <Link href="/" className="flex items-center">
             <BuildsyLogo size="md" />
-          </button>
+          </Link>
 
           <nav className="hidden md:flex items-center gap-9 text-sm font-medium text-[#37473f]">
             <a

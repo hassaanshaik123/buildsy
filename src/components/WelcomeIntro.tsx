@@ -10,20 +10,35 @@ interface WelcomeIntroProps {
 
 export function WelcomeIntro({ onComplete }: WelcomeIntroProps) {
   const [phase, setPhase] = useState<"playing" | "exiting" | "done">("playing");
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Start smooth exit transition after 2.9s
+    // Smooth 0 -> 100% counter over 6 seconds (6000ms)
+    const startTime = Date.now();
+    const duration = 6000;
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const pct = Math.min(100, Math.round((elapsed / duration) * 100));
+      setProgress(pct);
+      if (pct >= 100) {
+        clearInterval(interval);
+      }
+    }, 50);
+
+    // Start smooth exit transition after 6.0s
     const exitTimer = setTimeout(() => {
       setPhase("exiting");
-    }, 2900);
+    }, 6000);
 
-    // Unmount completely after exit animation finishes (3.55s)
+    // Unmount completely after exit animation finishes (6.65s)
     const doneTimer = setTimeout(() => {
       setPhase("done");
       onComplete?.();
-    }, 3550);
+    }, 6650);
 
     return () => {
+      clearInterval(interval);
       clearTimeout(exitTimer);
       clearTimeout(doneTimer);
     };
@@ -38,6 +53,15 @@ export function WelcomeIntro({ onComplete }: WelcomeIntroProps) {
   };
 
   if (phase === "done") return null;
+
+  const loadingStageText =
+    progress < 35
+      ? "Initializing Buildsy studio..."
+      : progress < 70
+      ? "Loading live tool stacks & free-tier pricing..."
+      : progress < 95
+      ? "Preparing your phased MVP budget calculator..."
+      : "Ready! Launching buildsy.me...";
 
   return (
     <div
@@ -141,14 +165,51 @@ export function WelcomeIntro({ onComplete }: WelcomeIntroProps) {
         </div>
       </div>
 
-      {/* Bottom Progress Timeline Bar */}
-      <div className="w-full max-w-xs mx-auto flex flex-col items-center gap-2 relative z-10">
-        <div className="w-full h-1.5 rounded-full bg-[#eaf3ee] overflow-hidden">
-          <div className="h-full bg-[#134e35] rounded-full animate-buildsy-progress" />
+      {/* Bottom Area: 6-Second Loading Animation (Spinner + Bouncing Dots + Progress Bar + Percentage) */}
+      <div className="w-full max-w-md mx-auto flex flex-col items-center gap-3 relative z-10 pb-2">
+        {/* Spinner Ring + Bouncing Dots + Percentage */}
+        <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-[#f4fbf7] border border-[#d8eee2] shadow-2xs">
+          {/* Dual-ring SVG spinner */}
+          <svg
+            className="w-4 h-4 text-[#134e35] animate-spin shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="9"
+              stroke="#cde5d8"
+              strokeWidth="3"
+            />
+            <path
+              d="M21 12a9 9 0 00-9-9"
+              stroke="#134e35"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+          </svg>
+
+          <span className="text-xs font-semibold text-[#134e35]">
+            {loadingStageText}
+          </span>
+
+          {/* Bouncing dots */}
+          <span className="inline-flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#198754] animate-bounce [animation-delay:-0.3s]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#198754] animate-bounce [animation-delay:-0.15s]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#198754] animate-bounce" />
+          </span>
+
+          <span className="text-xs font-extrabold text-[#0c1510] tabular-nums ml-1">
+            {progress}%
+          </span>
         </div>
-        <span className="text-[11px] font-medium text-[#6c7d73]">
-          Loading your build plan studio...
-        </span>
+
+        {/* Smooth 6-Second Progress Bar */}
+        <div className="w-full h-2 rounded-full bg-[#e6f2ec] overflow-hidden p-0.5">
+          <div className="h-full bg-gradient-to-r from-[#134e35] via-[#198754] to-[#22c55e] rounded-full animate-buildsy-progress" />
+        </div>
       </div>
     </div>
   );
