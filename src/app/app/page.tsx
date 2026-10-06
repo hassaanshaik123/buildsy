@@ -52,7 +52,9 @@ import {
   calculatePlanBudget,
   SHOWCASE_BUILD_PLAN,
   STARTER_IDEA_TEMPLATES,
+  generateTailoredPlanFallback,
 } from "@/lib/plan-engine";
+import { BuildsyWizard, WizardAnswers } from "@/components/BuildsyWizard";
 import {
   DEFAULT_SETTINGS,
   deletePlanFromStorage,
@@ -91,10 +93,22 @@ function CategoryIcon({ iconKey }: { iconKey: string }) {
 function BuildsyStudioContent() {
   const searchParams = useSearchParams();
 
+  const viewParam = searchParams.get("view");
+  const defaultView =
+    viewParam === "dashboard"
+      ? "plan-dashboard"
+      : viewParam === "plans"
+      ? "my-plans"
+      : viewParam === "saved"
+      ? "saved"
+      : viewParam === "settings"
+      ? "settings"
+      : "new-idea-wizard";
+
   // Sidebar view state
   const [sidebarView, setSidebarView] = useState<
     "plan-dashboard" | "new-idea-wizard" | "my-plans" | "saved" | "settings"
-  >("plan-dashboard");
+  >(defaultView);
 
   // Plan dashboard active tab
   const [activeTab, setActiveTab] = useState<
@@ -149,18 +163,24 @@ function BuildsyStudioContent() {
 
     const viewParam = searchParams.get("view");
     const ideaParam = searchParams.get("idea");
+    const stepParam = searchParams.get("step");
 
     if (ideaParam) {
       setIdeaInput(ideaParam);
       setSidebarView("new-idea-wizard");
       setWizardStep(1);
+    } else if (stepParam) {
+      setSidebarView("new-idea-wizard");
+    } else if (viewParam === "dashboard") {
+      setSidebarView("plan-dashboard");
     } else if (viewParam === "plans") {
       setSidebarView("my-plans");
     } else if (viewParam === "saved") {
       setSidebarView("saved");
     } else if (viewParam === "settings") {
       setSidebarView("settings");
-    } else if (viewParam === "new") {
+    } else {
+      // Default entry when visiting /app is the rebuilt 4-step wizard!
       setSidebarView("new-idea-wizard");
     }
   }, [searchParams]);
@@ -358,7 +378,114 @@ function BuildsyStudioContent() {
     triggerToast(`Downloaded ${filename}`);
   };
 
+  // Finish handler for the rebuilt 4-step BuildsyWizard (Matches 2nd-Page.png, 3rd-page.png, Step 3, 4th-page.png)
+  const handleFinishWizard = async (wizardAnswers: WizardAnswers) => {
+    setIsGeneratingPlan(true);
+    triggerToast("Generating your personalized MVP build plan...");
+
+    const formattedAnswers: QuestionAnswer[] = [
+      {
+        questionId: "q-stage",
+        question: "What stage are you at?",
+        answer: wizardAnswers.stage,
+      },
+      {
+        questionId: "q-skill",
+        question: "What is your technical background?",
+        answer: wizardAnswers.technicalSkill,
+      },
+      {
+        questionId: "q-budget",
+        question: "What’s your estimated budget?",
+        answer: wizardAnswers.budget,
+      },
+    ];
+
+    try {
+      let newPlan: BuildPlan;
+      try {
+        const res = await fetch("/api/plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            idea: wizardAnswers.idea,
+            answers: formattedAnswers,
+            region: wizardAnswers.currency,
+            apiKey: settings.geminiApiKey,
+          }),
+        });
+        const data = await res.json();
+        if (data?.plan) {
+          newPlan = data.plan;
+        } else {
+          newPlan = generateTailoredPlanFallback(
+            wizardAnswers.idea,
+            formattedAnswers,
+            wizardAnswers.currency
+          );
+        }
+      } catch {
+        newPlan = generateTailoredPlanFallback(
+          wizardAnswers.idea,
+          formattedAnswers,
+          wizardAnswers.currency
+        );
+      }
+
+      if (wizardAnswers.attachedFileName) {
+        newPlan.summaryNote = `${newPlan.summaryNote || ""} (Attached PRD: ${wizardAnswers.attachedFileName})`;
+      }
+
+      const savedList = savePlanToStorage(newPlan);
+      setPlans(savedList);
+      setActivePlan(newPlan);
+      setSidebarView("plan-dashboard");
+      setActiveTab("Overview");
+      triggerToast("Your personalized MVP Build Plan is ready!");
+    } catch {
+      const fallback = generateTailoredPlanFallback(
+        wizardAnswers.idea,
+        formattedAnswers,
+        wizardAnswers.currency
+      );
+      savePlanToStorage(fallback);
+      setActivePlan(fallback);
+      setSidebarView("plan-dashboard");
+      triggerToast("Your build plan is ready!");
+    } finally {
+      setIsGeneratingPlan(false);
+    }
+  };
+
   const currentQuestion = questions[currentQuestionIdx];
+
+  // Render full-page 4-step wizard when in new-idea-wizard view (Matches 2nd-Page.png, 3rd-page.png, Step 3, 4th-page.png)
+  if (sidebarView === "new-idea-wizard") {
+    const stepParam = searchParams.get("step");
+    const stepNum = parseInt(stepParam || "1", 10);
+    const initialStep = (stepNum >= 1 && stepNum <= 4 ? stepNum : 1) as
+      | 1
+      | 2
+      | 3
+      | 4;
+
+    return (
+      <>
+        {toastMessage && (
+          <div className="fixed bottom-5 right-5 z-50 rounded-xl bg-[#0f5132] text-white px-4 py-3 text-xs font-semibold shadow-lg flex items-center gap-2 border border-[#247550]">
+            <CheckCircle2 className="w-4 h-4 text-[#6ee7b7] shrink-0" />
+            <span>{toastMessage}</span>
+          </div>
+        )}
+        <BuildsyWizard
+          initialIdea={ideaInput}
+          initialStep={initialStep}
+          onFinish={handleFinishWizard}
+          onExit={() => setSidebarView("plan-dashboard")}
+        />
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f4faf6] text-[#0c1510] flex flex-col">
@@ -391,27 +518,14 @@ function BuildsyStudioContent() {
               <nav className="space-y-1.5">
                 <button
                   type="button"
-                  onClick={() => setSidebarView("plan-dashboard")}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                    sidebarView === "plan-dashboard" ||
-                    sidebarView === "new-idea-wizard"
-                      ? "bg-[#124b32] text-white shadow-xs"
-                      : "text-[#4b5e54] hover:bg-[#eaf5ef] hover:text-[#124b32]"
-                  }`}
+                  onClick={() => setSidebarView("new-idea-wizard")}
+                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-[#0f5132] text-white shadow-xs hover:bg-[#0c4128] transition cursor-pointer"
                 >
                   <span className="flex items-center gap-2.5">
                     <FilePlus2 className="w-4 h-4 shrink-0" />
                     <span>New Plan</span>
                   </span>
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSidebarView("new-idea-wizard");
-                      setWizardStep(1);
-                    }}
-                    title="Describe a new product idea"
-                    className="px-1.5 py-0.5 rounded bg-white/15 hover:bg-white/25 text-[10px]"
-                  >
+                  <span className="px-1.5 py-0.5 rounded bg-white/20 text-[10px]">
                     + Idea
                   </span>
                 </button>
@@ -502,333 +616,7 @@ function BuildsyStudioContent() {
 
           {/* MAIN WORKSPACE CONTENT */}
           <main className="p-5 sm:p-8 bg-white overflow-y-auto">
-            {/* VIEW A: NEW IDEA ADAPTIVE WIZARD (Describe Idea -> 6 Adaptive Questions -> Plan) */}
-            {sidebarView === "new-idea-wizard" && (
-              <div className="max-w-3xl mx-auto py-2">
-                <div className="flex items-center justify-between mb-6">
-                  <button
-                    type="button"
-                    onClick={() => setSidebarView("plan-dashboard")}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#4b5e54] hover:text-[#124b32] cursor-pointer"
-                  >
-                    <ArrowLeft className="w-3.5 h-3.5" />
-                    <span>Back to current Build Plan</span>
-                  </button>
-                  <div className="flex items-center gap-2 text-xs font-semibold text-[#146c43]">
-                    <span
-                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
-                        wizardStep >= 1
-                          ? "bg-[#124b32] text-white"
-                          : "bg-[#e6f4ed] text-[#124b32]"
-                      }`}
-                    >
-                      1
-                    </span>
-                    <span className="text-[#94a3b8]">—</span>
-                    <span
-                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
-                        wizardStep >= 2
-                          ? "bg-[#124b32] text-white"
-                          : "bg-[#e6f4ed] text-[#124b32]"
-                      }`}
-                    >
-                      2
-                    </span>
-                    <span className="text-[#94a3b8]">—</span>
-                    <span
-                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
-                        wizardStep >= 3
-                          ? "bg-[#124b32] text-white"
-                          : "bg-[#e6f4ed] text-[#124b32]"
-                      }`}
-                    >
-                      3
-                    </span>
-                  </div>
-                </div>
-
-                {/* WIZARD STEP 1: DESCRIBE YOUR IDEA */}
-                {wizardStep === 1 && (
-                  <div className="rounded-2xl border border-[#dcece3] bg-[#fbfdfc] p-6 sm:p-8 shadow-xs">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e6f4ed] text-[#134e35] text-xs font-semibold">
-                      Step 1 of 3 • Describe Your Idea
-                    </span>
-                    <h2 className="mt-3 text-2xl sm:text-3xl font-extrabold text-[#0c1510]">
-                      What product idea do you want to build?
-                    </h2>
-                    <p className="mt-2 text-sm text-[#52655b]">
-                      Describe your idea in plain English. Buildsy will ask 5–6
-                      personalized follow-up questions to tailor your stack,
-                      phased buying plan, and total MVP budget.
-                    </p>
-
-                    <form
-                      onSubmit={handleStartAdaptiveQuestions}
-                      className="mt-6 space-y-5"
-                    >
-                      <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-[#37473f] mb-2">
-                          Your Raw Product Idea
-                        </label>
-                        <textarea
-                          rows={4}
-                          value={ideaInput}
-                          onChange={(e) => setIdeaInput(e.target.value)}
-                          placeholder="e.g., An AI-powered bookkeeping and GST invoice reminder micro-SaaS for freelance designers in India and the US..."
-                          className="w-full rounded-xl border border-[#cde2d6] bg-white p-4 text-sm text-[#0c1510] placeholder-[#82968b] focus:border-[#124b32] focus:outline-none focus:ring-2 focus:ring-[#124b32]/15"
-                        />
-                      </div>
-
-                      {/*Starter Idea Templates */}
-                      <div>
-                        <p className="text-xs font-semibold text-[#52655b] mb-2">
-                          Or try a popular founder scenario with 1 click:
-                        </p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                          {STARTER_IDEA_TEMPLATES.map((tpl) => (
-                            <button
-                              key={tpl.label}
-                              type="button"
-                              onClick={() => setIdeaInput(tpl.idea)}
-                              className="p-3 rounded-xl border border-[#e2eee7] bg-white hover:border-[#198754] text-left transition cursor-pointer group"
-                            >
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold text-[#0c1510] group-hover:text-[#124b32]">
-                                  {tpl.label}
-                                </span>
-                                <span className="px-2 py-0.5 rounded bg-[#e6f4ed] text-[#146c43] text-[10px] font-semibold">
-                                  {tpl.badge}
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-[#5c6f64] mt-1 line-clamp-2">
-                                {tpl.idea}
-                              </p>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Region / Currency Selection */}
-                      <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-[#e7f0eb]">
-                        <div>
-                          <p className="text-xs font-bold text-[#0c1510]">
-                            Primary Currency &amp; Market Region
-                          </p>
-                          <p className="text-[11px] text-[#5c6f64]">
-                            Calibrates payment gateways (Stripe vs. Razorpay)
-                            and local currency estimates.
-                          </p>
-                        </div>
-                        <div className="inline-flex rounded-xl bg-[#eef6f1] p-1 border border-[#d8eae0]">
-                          <button
-                            type="button"
-                            onClick={() => setWizardRegion("USD")}
-                            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                              wizardRegion === "USD"
-                                ? "bg-[#124b32] text-white"
-                                : "text-[#4b5e54]"
-                            }`}
-                          >
-                            🇺🇸 USD ($)
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setWizardRegion("INR")}
-                            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                              wizardRegion === "INR"
-                                ? "bg-[#124b32] text-white"
-                                : "text-[#4b5e54]"
-                            }`}
-                          >
-                            🇮🇳 India (₹ INR)
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-end pt-2">
-                        <button
-                          type="submit"
-                          disabled={isLoadingQuestions}
-                          className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#134e35] hover:bg-[#0e3c28] disabled:opacity-60 text-white text-sm font-semibold shadow-sm transition cursor-pointer"
-                        >
-                          {isLoadingQuestions ? (
-                            <>
-                              <RefreshCw className="w-4 h-4 animate-spin" />
-                              <span>Analyzing your idea...</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>Continue to tailored questions</span>
-                              <ArrowRight className="w-4 h-4" />
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                )}
-
-                {/* WIZARD STEP 2: ADAPTIVE FOLLOW-UP QUESTIONS */}
-                {wizardStep === 2 && currentQuestion && (
-                  <div className="rounded-2xl border border-[#dcece3] bg-[#fbfdfc] p-6 sm:p-8 shadow-xs">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e6f4ed] text-[#134e35] text-xs font-semibold">
-                        Question {currentQuestionIdx + 1} of {questions.length}
-                      </span>
-                      <span className="text-xs text-[#5c6f64] font-medium">
-                        {Math.round(
-                          ((currentQuestionIdx + 1) / questions.length) * 100
-                        )}
-                        % complete
-                      </span>
-                    </div>
-
-                    {/* Progress bar */}
-                    <div className="mt-3 w-full h-2 rounded-full bg-[#e6f2ec] overflow-hidden">
-                      <div
-                        className="h-full bg-[#157347] transition-all duration-300"
-                        style={{
-                          width: `${
-                            ((currentQuestionIdx + 1) / questions.length) * 100
-                          }%`,
-                        }}
-                      />
-                    </div>
-
-                    <h2 className="mt-6 text-xl sm:text-2xl font-extrabold text-[#0c1510]">
-                      {currentQuestion.question}
-                    </h2>
-
-                    <div className="mt-2.5 rounded-xl bg-[#eff8f3] border border-[#d8eee2] p-3 flex items-start gap-2.5">
-                      <Lightbulb className="w-4 h-4 text-[#145334] shrink-0 mt-0.5" />
-                      <p className="text-xs text-[#37473f]">
-                        <strong className="font-semibold text-[#124b32]">
-                          Why Buildsy asks this:{" "}
-                        </strong>
-                        {currentQuestion.whyWeAsk}
-                      </p>
-                    </div>
-
-                    <div className="mt-5 space-y-2.5">
-                      {currentQuestion.options.map((option) => {
-                        const isSelected =
-                          answers[currentQuestion.id] === option;
-                        return (
-                          <button
-                            key={option}
-                            type="button"
-                            onClick={() => {
-                              setAnswers((prev) => ({
-                                ...prev,
-                                [currentQuestion.id]: option,
-                              }));
-                              setCustomAnswerText("");
-                            }}
-                            className={`w-full p-4 rounded-xl border text-left text-sm font-medium transition flex items-center justify-between gap-3 cursor-pointer ${
-                              isSelected
-                                ? "border-[#145334] bg-[#e9f7f0] text-[#0c1510] font-semibold ring-1 ring-[#145334]/20"
-                                : "border-[#e0ece5] bg-white hover:border-[#b7d9c6] text-[#2b3b32]"
-                            }`}
-                          >
-                            <span>{option}</span>
-                            <span
-                              className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                                isSelected
-                                  ? "border-[#124b32] bg-[#124b32] text-white"
-                                  : "border-[#cbd5e1]"
-                              }`}
-                            >
-                              {isSelected && <Check className="w-3 h-3" />}
-                            </span>
-                          </button>
-                        );
-                      })}
-
-                      {/* Custom answer input */}
-                      <div className="pt-2">
-                        <input
-                          type="text"
-                          value={customAnswerText}
-                          onChange={(e) => {
-                            setCustomAnswerText(e.target.value);
-                            setAnswers((prev) => ({
-                              ...prev,
-                              [currentQuestion.id]: e.target.value,
-                            }));
-                          }}
-                          placeholder="Or type your own custom constraint / preference..."
-                          className="w-full px-4 py-3 rounded-xl border border-[#d6e5dd] bg-white text-xs text-[#0c1510] placeholder-[#7c8f84] focus:border-[#124b32] focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mt-7 flex items-center justify-between pt-4 border-t border-[#e7f0eb]">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (currentQuestionIdx > 0) {
-                            setCurrentQuestionIdx((i) => i - 1);
-                            setCustomAnswerText("");
-                          } else {
-                            setWizardStep(1);
-                          }
-                        }}
-                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-[#d8e5de] bg-white text-xs font-semibold text-[#4b5e54] hover:bg-[#f5faf7] cursor-pointer"
-                      >
-                        <ArrowLeft className="w-3.5 h-3.5" />
-                        <span>Previous</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const chosen =
-                            answers[currentQuestion.id] ||
-                            currentQuestion.options[0];
-                          const nextMap = {
-                            ...answers,
-                            [currentQuestion.id]: chosen,
-                          };
-                          setAnswers(nextMap);
-                          setCustomAnswerText("");
-
-                          if (currentQuestionIdx + 1 < questions.length) {
-                            setCurrentQuestionIdx((i) => i + 1);
-                          } else {
-                            handleGenerateBuildPlan(nextMap);
-                          }
-                        }}
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#134e35] hover:bg-[#0e3c28] text-white text-xs sm:text-sm font-semibold shadow-sm transition cursor-pointer"
-                      >
-                        <span>
-                          {currentQuestionIdx + 1 < questions.length
-                            ? "Next Question"
-                            : "Generate My Build Plan"}
-                        </span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* WIZARD STEP 3: GENERATING PLAN LOADING STATE */}
-                {wizardStep === 3 && isGeneratingPlan && (
-                  <div className="rounded-2xl border border-[#dcece3] bg-[#fbfdfc] p-10 text-center space-y-4">
-                    <div className="w-14 h-14 rounded-2xl bg-[#e6f4ed] text-[#124b32] flex items-center justify-center mx-auto">
-                      <RefreshCw className="w-7 h-7 animate-spin" />
-                    </div>
-                    <h3 className="text-xl font-extrabold text-[#0c1510]">
-                      Building your phased MVP tool stack &amp; budget...
-                    </h3>
-                    <p className="text-xs sm:text-sm text-[#52655b] max-w-md mx-auto">
-                      Checking current free tiers, evaluating low-cost vs. scale
-                      options, and mapping out your 3-month spending schedule so
-                      you don&apos;t overpay upfront.
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
+            {/* MAIN BUILD PLAN DASHBOARD (Matches Mockups Overview & Tool Stack) */}
 
             {/* VIEW B: MAIN BUILD PLAN DASHBOARD (Matches Mockups Overview & Tool Stack) */}
             {sidebarView === "plan-dashboard" && (

@@ -13,6 +13,17 @@ export function WelcomeIntro({ onComplete }: WelcomeIntroProps) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    // Only show once per session so developers and users aren't repeatedly blocked on reloads
+    try {
+      if (sessionStorage.getItem("buildsy_intro_seen")) {
+        setPhase("done");
+        onComplete?.();
+        return;
+      }
+      sessionStorage.setItem("buildsy_intro_seen", "true");
+    } catch {
+      // ignore storage errors
+    }
     // Smooth 0 -> 100% counter over 6 seconds (6000ms)
     const startTime = Date.now();
     const duration = 6000;

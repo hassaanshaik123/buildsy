@@ -23,6 +23,7 @@ import {
   SparkleRays,
   FounderAvatar,
 } from "@/components/ToolLogos";
+import { LaptopMockup } from "@/components/LaptopMockup";
 import { DashboardPreviewCard } from "@/components/DashboardPreviewCard";
 import { WelcomeIntro } from "@/components/WelcomeIntro";
 
@@ -85,203 +86,181 @@ export default function LandingPage() {
       {/* Welcoming Intro Animation ("buildsy.me" + "Get your personalized budget tool stack") */}
       <WelcomeIntro />
 
-      {/* Top Navbar (Matches hero-page.png) */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-[#eaf2ed]">
+      {/* Top Navbar (Matches 1st-Hero-Page.png) */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#eaf2ed]">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-8 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center">
             <BuildsyLogo size="md" />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-9 text-sm font-medium text-[#37473f]">
-            <a
-              href="#how-it-works"
-              className="hover:text-[#124b32] transition"
-            >
+          <nav className="hidden md:flex items-center gap-9 text-sm font-medium text-[#2d3732]">
+            <a href="#how-it-works" className="hover:text-[#0f5132] transition">
               How it works
             </a>
-            <a href="#features" className="hover:text-[#124b32] transition">
+            <a href="#features" className="hover:text-[#0f5132] transition">
               Features
             </a>
-            <a href="#pricing" className="hover:text-[#124b32] transition">
+            <a href="#pricing" className="hover:text-[#0f5132] transition">
               Pricing
             </a>
-            <a href="#faqs" className="hover:text-[#124b32] transition">
+            <a href="#faqs" className="hover:text-[#0f5132] transition">
               FAQs
             </a>
           </nav>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-6">
             <Link
-              href="/app?view=plans"
-              className="hidden sm:inline-block text-sm font-medium text-[#37473f] hover:text-[#124b32] transition"
+              href="/app"
+              className="text-sm font-medium text-[#2d3732] hover:text-[#0f5132] transition"
             >
               Sign in
             </Link>
             <Link
               href="/app"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#134e35] hover:bg-[#0e3c28] text-white text-sm font-semibold shadow-xs transition"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0f5132] hover:bg-[#0c4128] text-white text-sm font-semibold shadow-xs transition"
             >
-              <span>Get started free</span>
+              <span>Get started</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
       </header>
 
-      {/* SECTION 1: HERO (Matches hero-page.png) */}
-      <section className="relative overflow-hidden pt-10 pb-16 lg:pt-16 lg:pb-20">
-        {/* Soft mint background radial blob on right */}
-        <div className="pointer-events-none absolute -top-24 right-0 w-[680px] h-[680px] rounded-full bg-[#e6f5ed]/70 blur-3xl" />
+      {/* SECTION 1: HERO (Matches 1st-Hero-Page.png) */}
+      <section className="relative overflow-hidden pt-12 pb-16 lg:pt-16 lg:pb-24">
+        {/* Soft mint background radial blobs matching 1st-Hero-Page.png */}
+        <div className="pointer-events-none absolute -top-24 right-10 w-[600px] h-[600px] rounded-full bg-[#e8f7ee]/80 blur-3xl" />
+        <div className="pointer-events-none absolute top-40 -left-20 w-[420px] h-[420px] rounded-full bg-[#f0faf4]/70 blur-2xl" />
 
         <div className="max-w-[1280px] mx-auto px-4 sm:px-8 relative">
-          <div className="grid grid-cols-1 lg:grid-cols-[1.02fr_1.18fr] gap-12 lg:gap-10 items-center">
-            {/* Left Column */}
-            <div>
-              <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#e6f4ed] text-[#134e35] text-xs sm:text-sm font-semibold mb-6">
-                Plan smarter. Build faster.
-              </div>
-
-              <h1 className="text-4xl sm:text-5xl lg:text-[58px] font-extrabold tracking-tight text-[#0c1510] leading-[1.08]">
-                Turn your idea into a clear, affordable{" "}
-                <span className="relative inline-block text-[#145334]">
-                  build plan.
-                  <span className="block mt-0.5">
-                    <GreenBrushUnderline />
-                  </span>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.15fr] gap-12 lg:gap-14 items-center">
+            {/* Left Column: Heading, Subtitle, CTA, Social Proof */}
+            <div className="text-left">
+              <h1 className="text-4xl sm:text-5xl lg:text-[56px] font-extrabold tracking-tight text-[#0c1510] leading-[1.12]">
+                Turn your{" "}
+                <span className="relative inline-block">
+                  ideas
+                  {/* Energetic 3-ray green doodle matching 1st-Hero-Page.png */}
+                  <svg
+                    width="44"
+                    height="44"
+                    viewBox="0 0 44 44"
+                    fill="none"
+                    className="absolute -top-7 -right-7 text-[#15803d] pointer-events-none"
+                  >
+                    <path
+                      d="M8 36L4 32"
+                      stroke="currentColor"
+                      strokeWidth="2.8"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M18 24L14 8"
+                      stroke="currentColor"
+                      strokeWidth="2.8"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M28 28L38 20"
+                      stroke="currentColor"
+                      strokeWidth="2.8"
+                      strokeLinecap="round"
+                    />
+                  </svg>
                 </span>
+                <br />
+                into a clear,
+                <br />
+                affordable
+                <br />
+                <span className="text-[#0f5132]">build plan.</span>
               </h1>
 
-              <p className="mt-6 text-base sm:text-lg text-[#4b5e54] leading-relaxed max-w-[540px]">
-                Buildsy helps solo founders and small teams find the right
-                tools, plan their MVP, and estimate costs — before they spend
-                money on the wrong things.
+              <p className="mt-6 text-base sm:text-lg text-[#526058] leading-relaxed max-w-[480px]">
+                Buildsy helps you choose the right tools, plan your MVP, and know what it will cost before you start building.
               </p>
 
-              {/* Interactive Quick Idea Bar + Main CTAs */}
-              <form
-                onSubmit={handleQuickStart}
-                className="mt-7 max-w-[520px] flex flex-col sm:flex-row gap-2.5 p-1.5 rounded-2xl bg-white border border-[#cfe3d8] shadow-sm focus-within:border-[#145334] focus-within:ring-2 focus-within:ring-[#145334]/15 transition"
-              >
-                <input
-                  type="text"
-                  value={quickIdea}
-                  onChange={(e) => setQuickIdea(e.target.value)}
-                  placeholder="Describe your idea (e.g. AI interview coach for devs)..."
-                  className="flex-1 px-3.5 py-2.5 text-sm text-[#0c1510] placeholder-[#7c8f84] bg-transparent focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#134e35] hover:bg-[#0e3c28] text-white text-sm font-semibold transition cursor-pointer shrink-0"
-                >
-                  <span>Get your build plan</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </form>
-
-              <div className="mt-4 flex flex-wrap items-center gap-3.5">
+              {/* Main CTA Button */}
+              <div className="mt-8">
                 <Link
                   href="/app"
-                  className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-[#134e35] hover:bg-[#0e3c28] text-white text-sm sm:text-base font-semibold shadow-sm transition"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#0f5132] hover:bg-[#0c4128] text-white text-base font-semibold shadow-xs transition"
                 >
                   <span>Get your build plan</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
-
-                <button
-                  type="button"
-                  onClick={() => setShowDemoModal(true)}
-                  className="inline-flex items-center gap-2.5 px-5 py-3.5 rounded-xl bg-white hover:bg-[#f3f8f5] text-[#0c1510] border border-[#d6e2dc] text-sm sm:text-base font-semibold shadow-2xs transition cursor-pointer"
-                >
-                  <span className="w-6 h-6 rounded-full border-2 border-[#0c1510] flex items-center justify-center">
-                    <Play className="w-3 h-3 fill-[#0c1510] ml-0.5" />
-                  </span>
-                  <span>Watch demo (2 min)</span>
-                </button>
               </div>
 
-              {/* Social Proof Avatars & Stars */}
+              {/* Social Proof (4 Overlapping Avatars + 1,000+ Founders Text) */}
               <div className="mt-9 flex items-center gap-4">
-                <div className="flex -space-x-3">
-                  <FounderAvatar name="Rohan Mehta" bg="#d8efe3" seed={1} size={42} />
-                  <FounderAvatar name="Priya Sharma" bg="#e2f2ea" seed={2} size={42} />
-                  <FounderAvatar name="Arjun Patel" bg="#cfe9dc" seed={3} size={42} />
+                <div className="flex -space-x-2.5">
+                  <FounderAvatar name="Rohan" seed={1} bg="#d8efe3" size={44} />
+                  <FounderAvatar name="Priya" seed={2} bg="#e2f2ea" size={44} />
+                  <FounderAvatar name="Arjun" seed={3} bg="#cfe9dc" size={44} />
+                  <FounderAvatar name="Meera" seed={1} bg="#d2ede0" size={44} />
                 </div>
-                <div>
-                  <p className="text-sm text-[#4b5e54]">
-                    Trusted by{" "}
-                    <strong className="font-bold text-[#0c1510]">1,000+</strong>{" "}
-                    founders &amp; builders
-                  </p>
-                  <div className="flex items-center gap-1 text-[#f59e0b] text-sm mt-0.5">
-                    <span>★</span>
-                    <span>★</span>
-                    <span>★</span>
-                    <span>★</span>
-                    <span>★</span>
-                  </div>
-                </div>
+                <p className="text-sm font-medium text-[#2f3d35] leading-snug">
+                  1,000+ founders already planning
+                  <br />
+                  smarter with Buildsy.
+                </p>
               </div>
             </div>
 
-            {/* Right Column: Interactive Dashboard Preview */}
+            {/* Right Column: 3D Laptop on Soft-Mint Pedestal */}
             <div className="relative">
-              <SparkleRays className="hidden sm:block absolute -top-9 -left-8 z-10" />
-              <DashboardPreviewCard defaultTab="Overview" />
+              <LaptopMockup />
             </div>
           </div>
         </div>
       </section>
 
-      {/* LOGO STRIP: POPULAR TOOLS WE RECOMMEND (Matches bottom of hero-page.png) */}
-      <section className="py-10 bg-white border-y border-[#eaf2ed]">
+      {/* TRUSTED TOOLS STRIP (Matches bottom of 1st-Hero-Page.png) */}
+      <section className="py-12 bg-white border-t border-[#edf3ef]">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-8">
-          <p className="text-center text-xs font-semibold tracking-[0.2em] text-[#5c6f64] uppercase mb-7">
-            POPULAR TOOLS WE RECOMMEND
+          <p className="text-center text-xs font-semibold tracking-[0.2em] text-[#6b7280] uppercase mb-8">
+            TRUSTED TOOLS, RECOMMENDED BY BUILDSY
           </p>
-          <div className="flex flex-wrap items-center justify-center md:justify-between gap-8 sm:gap-10 opacity-95">
+
+          <div className="flex flex-wrap items-center justify-center md:justify-between gap-8 sm:gap-10 opacity-90">
             {/* Vercel */}
-            <div className="flex items-center gap-2 font-bold text-xl text-[#0c1510]">
-              <svg width="22" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <div className="flex items-center gap-2 font-bold text-lg text-[#0c1510]">
+              <svg width="20" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2L23 21H1L12 2Z" />
               </svg>
               <span>Vercel</span>
             </div>
 
-            {/* supabase */}
-            <div className="flex items-center gap-2 font-bold text-xl text-[#0c1510]">
+            {/* Supabase */}
+            <div className="flex items-center gap-2 font-bold text-lg text-[#0c1510]">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M13.5 2L4.5 13.5H12L10.5 22L19.5 10.5H12L13.5 2Z"
-                  fill="#22c55e"
+                  fill="#1eb86a"
                 />
               </svg>
-              <span>supabase</span>
+              <span>Supabase</span>
             </div>
 
-            {/* stripe */}
-            <div className="font-extrabold text-2xl tracking-tight text-[#635bff]">
-              stripe
+            {/* Stripe */}
+            <div className="flex items-center gap-2 font-extrabold text-lg tracking-tight text-[#0c1510]">
+              <span className="w-6 h-6 rounded-md bg-[#635bff] text-white flex items-center justify-center font-bold text-xs">
+                S
+              </span>
+              <span>Stripe</span>
             </div>
 
             {/* Notion */}
             <div className="flex items-center gap-2 font-semibold text-lg text-[#0c1510]">
-              <span className="w-7 h-7 rounded border-2 border-[#0c1510] flex items-center justify-center font-serif font-bold text-sm">
+              <span className="w-6 h-6 rounded border border-[#0c1510] flex items-center justify-center font-serif font-bold text-xs">
                 N
               </span>
               <span>Notion</span>
             </div>
 
-            {/* Linear */}
-            <div className="flex items-center gap-2 font-semibold text-xl text-[#0c1510]">
-              <span className="w-6 h-6 rounded-full bg-[#0c1510] text-white flex items-center justify-center text-xs font-bold">
-                L
-              </span>
-              <span>Linear</span>
-            </div>
-
             {/* Figma */}
-            <div className="flex items-center gap-2 font-bold text-xl text-[#0c1510]">
-              <svg width="18" height="24" viewBox="0 0 24 24" fill="none">
+            <div className="flex items-center gap-2 font-bold text-lg text-[#0c1510]">
+              <svg width="16" height="22" viewBox="0 0 24 24" fill="none">
                 <circle cx="9" cy="6" r="3.5" fill="#F24E1E" />
                 <circle cx="16" cy="6" r="3.5" fill="#FF7262" />
                 <circle cx="9" cy="12.5" r="3.5" fill="#A259FF" />
@@ -291,26 +270,42 @@ export default function LandingPage() {
               <span>Figma</span>
             </div>
 
-            {/* aws */}
+            {/* AWS */}
             <div className="flex flex-col items-center leading-none">
-              <span className="font-extrabold text-xl text-[#1e293b]">aws</span>
-              <span className="w-8 h-1 rounded-full bg-[#f59e0b] mt-0.5" />
+              <span className="font-extrabold text-lg text-[#1e293b]">aws</span>
+              <svg width="28" height="6" viewBox="0 0 32 8" fill="none">
+                <path
+                  d="M1 2C10 7 22 7 31 2"
+                  stroke="#f59e0b"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+              </svg>
             </div>
 
             {/* Google Cloud */}
-            <div className="flex items-center gap-2 font-medium text-lg text-[#37473f]">
-              <svg width="24" height="20" viewBox="0 0 24 20" fill="none">
+            <div className="flex items-center gap-2 font-medium text-lg text-[#1e293b]">
+              <svg width="22" height="18" viewBox="0 0 24 20" fill="none">
                 <path
                   d="M18.5 8.5C17.8 5 14.7 2.5 11 2.5C7.2 2.5 4 5.2 3.5 8.8C1.5 9.5 0 11.4 0 13.7C0 16.6 2.4 19 5.3 19H18.2C21.4 19 24 16.4 24 13.2C24 10.3 21.6 8.6 18.5 8.5Z"
-                  fill="#3b82f6"
+                  fill="#4285f4"
                 />
-                <circle cx="11" cy="11" r="4" fill="#ffffff" />
+                <circle cx="11" cy="11" r="3.5" fill="#ffffff" />
               </svg>
               <span>Google Cloud</span>
+            </div>
+
+            {/* Linear */}
+            <div className="flex items-center gap-2 font-semibold text-lg text-[#0c1510]">
+              <span className="w-5 h-5 rounded-full bg-[#18181b] text-white flex items-center justify-center text-[10px] font-bold">
+                L
+              </span>
+              <span>Linear</span>
             </div>
           </div>
         </div>
       </section>
+
 
       {/* SECTION 2: HOW IT WORKS (Matches second-page.png) */}
       <section id="how-it-works" className="py-20 lg:py-24 bg-white">

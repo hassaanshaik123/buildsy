@@ -17,6 +17,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.font-handwriting {
+  font-family: var(--font-handwriting), "Caveat", cursive;
+}
+
 @keyframes buildsyWordRise {
   0% {
     opacity: 0;
