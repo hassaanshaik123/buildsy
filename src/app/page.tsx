@@ -5,72 +5,101 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
-  Play,
-  Layers,
-  IndianRupee,
-  BarChart3,
-  Clock,
-  Mail,
-  ChevronDown,
-  ChevronUp,
   Sparkles,
   Check,
-  X,
+  ChevronDown,
+  ChevronUp,
+  CheckCircle2,
 } from "lucide-react";
 import {
   BuildsyLogo,
-  GreenBrushUnderline,
-  SparkleRays,
   FounderAvatar,
+  ToolBrandIcon,
 } from "@/components/ToolLogos";
 import { LaptopMockup } from "@/components/LaptopMockup";
-import { DashboardPreviewCard } from "@/components/DashboardPreviewCard";
-import { WelcomeIntro } from "@/components/WelcomeIntro";
+
+const STARTER_PROMPTS = [
+  { label: "⚡ AI Interview Coach", idea: "AI Mock Interview Coach with voice feedback and video recordings" },
+  { label: "🛍️ Creator Marketplace", idea: "Two-sided marketplace for indie creators to sell digital design assets" },
+  { label: "💼 Client Portal", idea: "Micro-SaaS client portal for freelancers with Stripe invoicing and file sharing" },
+  { label: "📱 Hyperlocal Delivery", idea: "Hyperlocal grocery ordering app for college campuses with UPI payments" },
+];
+
+const PHASE_PREVIEWS = {
+  phase1: {
+    title: "Phase 1: Validate",
+    subtitle: "Weeks 1–4 • Pre-revenue validation",
+    monthlyCost: "$0",
+    savings: "Save ~$180/mo",
+    tools: [
+      { name: "Next.js + Tailwind", role: "Frontend", tier: "Free (Vercel Hobby)", cost: "$0", logo: "next" },
+      { name: "Supabase", role: "Database & Auth", tier: "Free (500MB DB, 50k MAU)", cost: "$0", logo: "supabase" },
+      { name: "Stripe Checkout", role: "Payments", tier: "Pay-as-you-earn (2.9% + 30¢)", cost: "$0/mo", logo: "stripe" },
+      { name: "Resend", role: "Transactional Email", tier: "Free (3,000 emails/mo)", cost: "$0", logo: "resend" },
+    ],
+    advice: "Keep burn at $0. Do not pay for enterprise servers or analytics until you have active users.",
+  },
+  phase2: {
+    title: "Phase 2: Launch",
+    subtitle: "Weeks 5–8 • First paying users",
+    monthlyCost: "~$20",
+    savings: "Save ~$140/mo",
+    tools: [
+      { name: "Vercel Pro", role: "Custom Domain & Edge", tier: "Pro hosting plan", cost: "$20/mo", logo: "vercel" },
+      { name: "Supabase Free", role: "Database & Auth", tier: "Generous free limits", cost: "$0", logo: "supabase" },
+      { name: "Stripe Billing", role: "Recurring Subscriptions", tier: "Per-charge fee", cost: "$0 base", logo: "stripe" },
+      { name: "PostHog", role: "Product Analytics", tier: "Free (1M events/mo)", cost: "$0", logo: "posthog" },
+    ],
+    advice: "Add custom domain and production email. Keep database on free tier until you hit 50k monthly visits.",
+  },
+  phase3: {
+    title: "Phase 3: Scale",
+    subtitle: "Month 3+ • $1k+ MRR growth",
+    monthlyCost: "~$70",
+    savings: "Predictable, transparent budget",
+    tools: [
+      { name: "Vercel Pro", role: "Production Frontend", tier: "Team hosting & CI/CD", cost: "$20/mo", logo: "vercel" },
+      { name: "Supabase Pro", role: "Dedicated Postgres", tier: "Daily backups & no pausing", cost: "$25/mo", logo: "supabase" },
+      { name: "Resend Pro", role: "Email Marketing", tier: "50,000 emails/mo", cost: "$20/mo", logo: "resend" },
+      { name: "Sentry", role: "Error Monitoring", tier: "Developer plan", cost: "$5/mo", logo: "sentry" },
+    ],
+    advice: "Upgrade to dedicated database instances and automated backups once revenue funds the infrastructure.",
+  },
+};
 
 const FAQ_ITEMS = [
   {
     number: 1,
     question: "What is Buildsy?",
     answer:
-      "Buildsy helps solo founders and small teams turn their product idea into a clear, budget-disciplined build plan. It recommends the right tools, suggests a phased buying plan, and estimates the total cost to build your MVP — before you spend money.",
+      "Buildsy turns your product idea into a clear, budget-disciplined build plan. It recommends the right tools, maps a phased buying plan, and calculates your total MVP cost before you spend a single dollar.",
   },
   {
     number: 2,
-    question: "Who is Buildsy for?",
+    question: "Is Buildsy really free to use?",
     answer:
-      "Buildsy is built specifically for solo founders, indie hackers, and small 1–3 person teams in India and the United States who don't have a dedicated CTO and want to build their first MVP without wasting time or overpaying for software.",
+      "Yes, Buildsy is completely free during our launch. You can generate unlimited build plans, customize your tools, and export anytime without entering a credit card.",
   },
   {
     number: 3,
-    question: "Are the tool recommendations up to date?",
+    question: "Does Buildsy support both USD ($) and Indian Rupees (₹)?",
     answer:
-      "Yes! Instead of relying on a static internal list, Buildsy searches live tool pricing, free-tier limits, and modern alternatives tailored to your specific idea. Because SaaS pricing changes frequently, we also include a live refresh check so you can re-verify your plan anytime.",
+      "Yes! Buildsy includes built-in regional intelligence for both US and Indian founders, adapting payment stacks (Stripe vs Razorpay/Cashfree/UPI) and local pricing tiers.",
   },
   {
     number: 4,
-    question: "Does Buildsy cover hiring and team planning?",
+    question: "Is there any affiliate bias in your recommendations?",
     answer:
-      "Right now, Buildsy focuses 100% on helping you ship your MVP as a lean one-person company or small founding team using high-leverage tools. Workforce and hiring planning (roles needed to scale, experience levels, and region-specific US & India compensation data) is on our roadmap once your MVP is validated.",
-  },
-  {
-    number: 5,
-    question: "How does pricing work?",
-    answer:
-      "You can generate your tailored MVP build plan, explore tiered tool recommendations (Free / Low-Cost / Scale), and export your phased budget completely free during our MLP launch.",
-  },
-  {
-    number: 6,
-    question: "Is there any affiliate bias in the recommendations?",
-    answer:
-      "Zero affiliate bias. Our core promise is to help you avoid overspending. We always prioritize generous free tiers and open-source tools for Phase 1 validation, and explicitly tell you which paid tools to wait on until you have real users.",
+      "Zero affiliate bias. We don't push expensive $200/mo software for referral commissions. Our sole priority is helping you ship your MVP at the lowest possible burn rate.",
   },
 ];
 
 export default function LandingPage() {
   const router = useRouter();
+  const [quickIdea, setQuickIdea] = useState("AI Mock Interview Coach with voice feedback");
+  const [selectedPromptIdea, setSelectedPromptIdea] = useState("AI Mock Interview Coach");
+  const [activePhase, setActivePhase] = useState<"phase1" | "phase2" | "phase3">("phase1");
   const [openFaq, setOpenFaq] = useState<number>(1);
-  const [showDemoModal, setShowDemoModal] = useState(false);
-  const [quickIdea, setQuickIdea] = useState("");
 
   const handleQuickStart = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,24 +110,28 @@ export default function LandingPage() {
     }
   };
 
+  const handleSelectPrompt = (prompt: { label: string; idea: string }) => {
+    setQuickIdea(prompt.idea);
+    setSelectedPromptIdea(prompt.label.replace(/^[^a-zA-Z0-9]+/, "").trim());
+  };
+
+  const phaseData = PHASE_PREVIEWS[activePhase];
+
   return (
     <div className="min-h-screen bg-[#f9fcfa] text-[#0c1510] selection:bg-[#d1fae5] selection:text-[#065f46]">
-      {/* Welcoming Intro Animation ("buildsy.me" + "Get your personalized budget tool stack") */}
-      <WelcomeIntro />
-
-      {/* Top Navbar (Matches 1st-Hero-Page.png) */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#eaf2ed]">
+      {/* Top Navbar */}
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-[#eaf2ed]">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-8 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center">
             <BuildsyLogo size="md" />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-9 text-sm font-medium text-[#2d3732]">
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-[#2d3732]">
             <a href="#how-it-works" className="hover:text-[#0f5132] transition">
               How it works
             </a>
-            <a href="#features" className="hover:text-[#0f5132] transition">
-              Features
+            <a href="#simulator" className="hover:text-[#0f5132] transition">
+              Stack Simulator
             </a>
             <a href="#pricing" className="hover:text-[#0f5132] transition">
               Pricing
@@ -108,7 +141,7 @@ export default function LandingPage() {
             </a>
           </nav>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-5">
             <Link
               href="/app"
               className="text-sm font-medium text-[#2d3732] hover:text-[#0f5132] transition"
@@ -126,21 +159,21 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* SECTION 1: HERO (Matches 1st-Hero-Page.png) */}
+      {/* SECTION 1: HERO (Experiential & Visual) */}
       <section className="relative overflow-hidden pt-12 pb-16 lg:pt-16 lg:pb-24">
-        {/* Soft mint background radial blobs matching 1st-Hero-Page.png */}
+        {/* Soft mint atmospheric background blobs */}
         <div className="pointer-events-none absolute -top-24 right-10 w-[600px] h-[600px] rounded-full bg-[#e8f7ee]/80 blur-3xl" />
         <div className="pointer-events-none absolute top-40 -left-20 w-[420px] h-[420px] rounded-full bg-[#f0faf4]/70 blur-2xl" />
 
         <div className="max-w-[1280px] mx-auto px-4 sm:px-8 relative">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.15fr] gap-12 lg:gap-14 items-center">
-            {/* Left Column: Heading, Subtitle, CTA, Social Proof */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1.15fr] gap-12 lg:gap-14 items-center">
+            {/* Left Column: Heading, Subtitle, Interactive Prompt Bar, Social Proof */}
             <div className="text-left">
               <h1 className="text-4xl sm:text-5xl lg:text-[56px] font-extrabold tracking-tight text-[#0c1510] leading-[1.12]">
                 Turn your{" "}
                 <span className="relative inline-block">
                   ideas
-                  {/* Energetic 3-ray green doodle matching 1st-Hero-Page.png */}
+                  {/* Energetic 3-ray green doodle */}
                   <svg
                     width="44"
                     height="44"
@@ -176,30 +209,61 @@ export default function LandingPage() {
                 <span className="text-[#0f5132]">build plan.</span>
               </h1>
 
-              <p className="mt-6 text-base sm:text-lg text-[#526058] leading-relaxed max-w-[480px]">
-                Buildsy helps you choose the right tools, plan your MVP, and know what it will cost before you start building.
+              <p className="mt-5 text-base sm:text-lg text-[#526058] leading-relaxed max-w-[480px]">
+                Stop guessing tools and overspending. Get a tailored tool stack, phased budget, and MVP roadmap in minutes.
               </p>
 
-              {/* Main CTA Button */}
-              <div className="mt-8">
-                <Link
-                  href="/app"
-                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#0f5132] hover:bg-[#0c4128] text-white text-base font-semibold shadow-xs transition"
-                >
-                  <span>Get your build plan</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-
-              {/* Social Proof (4 Overlapping Avatars + 1,000+ Founders Text) */}
-              <div className="mt-9 flex items-center gap-4">
-                <div className="flex -space-x-2.5">
-                  <FounderAvatar name="Rohan" seed={1} bg="#d8efe3" size={44} />
-                  <FounderAvatar name="Priya" seed={2} bg="#e2f2ea" size={44} />
-                  <FounderAvatar name="Arjun" seed={3} bg="#cfe9dc" size={44} />
-                  <FounderAvatar name="Meera" seed={1} bg="#d2ede0" size={44} />
+              {/* Experiential Interactive Idea Input */}
+              <form onSubmit={handleQuickStart} className="mt-7 max-w-[500px]">
+                <div className="relative flex items-center rounded-2xl bg-white border border-[#d6ebe0] p-1.5 shadow-[0_8px_30px_-8px_rgba(16,68,42,0.12)] focus-within:border-[#0f5132] focus-within:ring-2 focus-within:ring-[#0f5132]/20 transition">
+                  <input
+                    type="text"
+                    value={quickIdea}
+                    onChange={(e) => setQuickIdea(e.target.value)}
+                    placeholder="What are you building? e.g. AI Mock Interviewer..."
+                    className="w-full pl-3.5 pr-2 py-2 text-sm text-[#0c1510] placeholder-[#8ca195] bg-transparent outline-none font-medium"
+                  />
+                  <button
+                    type="submit"
+                    className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-xl bg-[#0f5132] hover:bg-[#0c4128] text-white text-xs sm:text-sm font-semibold shrink-0 transition shadow-xs cursor-pointer"
+                  >
+                    <span>Get Plan</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
-                <p className="text-sm font-medium text-[#2f3d35] leading-snug">
+
+                {/* 1-Click Interactive Idea Chips */}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-[#6e8277] font-medium mr-1">Try an idea:</span>
+                  {STARTER_PROMPTS.map((p) => {
+                    const isSelected = quickIdea === p.idea;
+                    return (
+                      <button
+                        key={p.label}
+                        type="button"
+                        onClick={() => handleSelectPrompt(p)}
+                        className={`text-xs px-2.5 py-1 rounded-lg border transition cursor-pointer font-medium ${
+                          isSelected
+                            ? "bg-[#e5f5ec] border-[#0f5132] text-[#0f5132] font-semibold"
+                            : "bg-white border-[#e0ece5] text-[#4b5e54] hover:border-[#a8d5be] hover:bg-[#f6fbf8]"
+                        }`}
+                      >
+                        {p.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </form>
+
+              {/* Social Proof (Overlapping Avatars + 1,000+ Founders) */}
+              <div className="mt-8 flex items-center gap-4">
+                <div className="flex -space-x-2.5">
+                  <FounderAvatar name="Rohan" seed={1} bg="#d8efe3" size={42} />
+                  <FounderAvatar name="Priya" seed={2} bg="#e2f2ea" size={42} />
+                  <FounderAvatar name="Arjun" seed={3} bg="#cfe9dc" size={42} />
+                  <FounderAvatar name="Meera" seed={1} bg="#d2ede0" size={42} />
+                </div>
+                <p className="text-xs sm:text-sm font-medium text-[#2f3d35] leading-snug">
                   1,000+ founders already planning
                   <br />
                   smarter with Buildsy.
@@ -207,24 +271,24 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Right Column: 3D Laptop on Soft-Mint Pedestal */}
+            {/* Right Column: Interactive 3D Laptop on Soft-Mint Pedestal */}
             <div className="relative">
-              <LaptopMockup />
+              <LaptopMockup ideaTitle={selectedPromptIdea} />
             </div>
           </div>
         </div>
       </section>
 
-      {/* TRUSTED TOOLS STRIP (Matches bottom of 1st-Hero-Page.png) */}
-      <section className="py-12 bg-white border-t border-[#edf3ef]">
+      {/* TRUSTED TOOLS STRIP */}
+      <section className="py-10 bg-white border-y border-[#edf3ef]">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-8">
-          <p className="text-center text-xs font-semibold tracking-[0.2em] text-[#6b7280] uppercase mb-8">
+          <p className="text-center text-xs font-semibold tracking-[0.2em] text-[#6b7280] uppercase mb-7">
             TRUSTED TOOLS, RECOMMENDED BY BUILDSY
           </p>
 
-          <div className="flex flex-wrap items-center justify-center md:justify-between gap-8 sm:gap-10 opacity-90">
+          <div className="flex flex-wrap items-center justify-center md:justify-between gap-7 sm:gap-9 opacity-85">
             {/* Vercel */}
-            <div className="flex items-center gap-2 font-bold text-lg text-[#0c1510]">
+            <div className="flex items-center gap-2 font-bold text-base sm:text-lg text-[#0c1510]">
               <svg width="20" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2L23 21H1L12 2Z" />
               </svg>
@@ -232,35 +296,32 @@ export default function LandingPage() {
             </div>
 
             {/* Supabase */}
-            <div className="flex items-center gap-2 font-bold text-lg text-[#0c1510]">
+            <div className="flex items-center gap-2 font-bold text-base sm:text-lg text-[#0c1510]">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M13.5 2L4.5 13.5H12L10.5 22L19.5 10.5H12L13.5 2Z"
-                  fill="#1eb86a"
-                />
+                <path d="M13.5 2L4.5 13.5H12L10.5 22L19.5 10.5H12L13.5 2Z" fill="#1eb86a" />
               </svg>
               <span>Supabase</span>
             </div>
 
             {/* Stripe */}
-            <div className="flex items-center gap-2 font-extrabold text-lg tracking-tight text-[#0c1510]">
-              <span className="w-6 h-6 rounded-md bg-[#635bff] text-white flex items-center justify-center font-bold text-xs">
+            <div className="flex items-center gap-2 font-extrabold text-base sm:text-lg tracking-tight text-[#0c1510]">
+              <span className="w-5 h-5 rounded bg-[#635bff] text-white flex items-center justify-center font-bold text-[11px]">
                 S
               </span>
               <span>Stripe</span>
             </div>
 
             {/* Notion */}
-            <div className="flex items-center gap-2 font-semibold text-lg text-[#0c1510]">
-              <span className="w-6 h-6 rounded border border-[#0c1510] flex items-center justify-center font-serif font-bold text-xs">
+            <div className="flex items-center gap-2 font-semibold text-base sm:text-lg text-[#0c1510]">
+              <span className="w-5 h-5 rounded border border-[#0c1510] flex items-center justify-center font-serif font-bold text-[11px]">
                 N
               </span>
               <span>Notion</span>
             </div>
 
             {/* Figma */}
-            <div className="flex items-center gap-2 font-bold text-lg text-[#0c1510]">
-              <svg width="16" height="22" viewBox="0 0 24 24" fill="none">
+            <div className="flex items-center gap-2 font-bold text-base sm:text-lg text-[#0c1510]">
+              <svg width="15" height="20" viewBox="0 0 24 24" fill="none">
                 <circle cx="9" cy="6" r="3.5" fill="#F24E1E" />
                 <circle cx="16" cy="6" r="3.5" fill="#FF7262" />
                 <circle cx="9" cy="12.5" r="3.5" fill="#A259FF" />
@@ -272,31 +333,14 @@ export default function LandingPage() {
 
             {/* AWS */}
             <div className="flex flex-col items-center leading-none">
-              <span className="font-extrabold text-lg text-[#1e293b]">aws</span>
-              <svg width="28" height="6" viewBox="0 0 32 8" fill="none">
-                <path
-                  d="M1 2C10 7 22 7 31 2"
-                  stroke="#f59e0b"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                />
+              <span className="font-extrabold text-base sm:text-lg text-[#1e293b]">aws</span>
+              <svg width="24" height="5" viewBox="0 0 32 8" fill="none">
+                <path d="M1 2C10 7 22 7 31 2" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" />
               </svg>
-            </div>
-
-            {/* Google Cloud */}
-            <div className="flex items-center gap-2 font-medium text-lg text-[#1e293b]">
-              <svg width="22" height="18" viewBox="0 0 24 20" fill="none">
-                <path
-                  d="M18.5 8.5C17.8 5 14.7 2.5 11 2.5C7.2 2.5 4 5.2 3.5 8.8C1.5 9.5 0 11.4 0 13.7C0 16.6 2.4 19 5.3 19H18.2C21.4 19 24 16.4 24 13.2C24 10.3 21.6 8.6 18.5 8.5Z"
-                  fill="#4285f4"
-                />
-                <circle cx="11" cy="11" r="3.5" fill="#ffffff" />
-              </svg>
-              <span>Google Cloud</span>
             </div>
 
             {/* Linear */}
-            <div className="flex items-center gap-2 font-semibold text-lg text-[#0c1510]">
+            <div className="flex items-center gap-2 font-semibold text-base sm:text-lg text-[#0c1510]">
               <span className="w-5 h-5 rounded-full bg-[#18181b] text-white flex items-center justify-center text-[10px] font-bold">
                 L
               </span>
@@ -306,461 +350,297 @@ export default function LandingPage() {
         </div>
       </section>
 
-
-      {/* SECTION 2: HOW IT WORKS (Matches second-page.png) */}
-      <section id="how-it-works" className="py-20 lg:py-24 bg-white">
+      {/* SECTION 2: HOW IT WORKS (Experiential 3 Steps, Minimal Words) */}
+      <section id="how-it-works" className="py-16 lg:py-20 bg-white">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-8">
-          <div className="text-center max-w-[720px] mx-auto">
-            <p className="text-xs font-bold tracking-[0.2em] text-[#146c43] uppercase">
+          <div className="text-center max-w-[620px] mx-auto">
+            <span className="px-3 py-1 rounded-full bg-[#e6f4ed] text-[#146c43] text-xs font-bold uppercase tracking-wider">
               HOW IT WORKS
-            </p>
-            <h2 className="mt-3 text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-[#0c1510] tracking-tight">
-              From idea to build plan in a few simple steps.
+            </span>
+            <h2 className="mt-3.5 text-3xl sm:text-4xl font-extrabold text-[#0c1510] tracking-tight">
+              From idea to build plan in three simple steps.
             </h2>
-            <p className="mt-4 text-base sm:text-lg text-[#52655b] leading-relaxed">
-              Describe your idea, answer a few tailored questions, and get a
-              personalized tool stack, phased plan, and total MVP cost — in
-              minutes.
+            <p className="mt-3 text-base text-[#52655b]">
+              Answer 4 tailored questions to receive a phased tool stack and total MVP cost.
             </p>
           </div>
 
-          {/* 4 Step Cards with dashed connectors */}
-          <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
-            {[
-              {
-                step: 1,
-                title: "Describe your idea",
-                desc: "Start with a simple description of what you want to build.",
-                icon: (
-                  <svg
-                    width="44"
-                    height="44"
-                    viewBox="0 0 44 44"
-                    fill="none"
-                    className="mx-auto"
-                  >
-                    <rect
-                      x="10"
-                      y="8"
-                      width="22"
-                      height="28"
-                      rx="3"
-                      stroke="#146c43"
-                      strokeWidth="2.2"
-                    />
-                    <path
-                      d="M15 16H27M15 21H27M15 26H22"
-                      stroke="#146c43"
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M35 8V14M32 11H38"
-                      stroke="#22c55e"
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                ),
-              },
-              {
-                step: 2,
-                title: "Answer a few questions",
-                desc: "Buildsy asks personalized questions to understand your idea, goals, budget and constraints.",
-                icon: (
-                  <svg
-                    width="44"
-                    height="44"
-                    viewBox="0 0 44 44"
-                    fill="none"
-                    className="mx-auto"
-                  >
-                    <path
-                      d="M10 14C10 12.3431 11.3431 11 13 11H25C26.6569 11 28 12.3431 28 14V21C28 22.6569 26.6569 24 25 24H16L11 28V14Z"
-                      stroke="#146c43"
-                      strokeWidth="2.2"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M28 18H31C32.6569 18 34 19.3431 34 21V32L29 28H21C19.3431 28 18 26.6569 18 25"
-                      stroke="#146c43"
-                      strokeWidth="2.2"
-                      strokeLinejoin="round"
-                    />
-                    <circle cx="16" cy="17.5" r="1.3" fill="#146c43" />
-                    <circle cx="19.5" cy="17.5" r="1.3" fill="#146c43" />
-                    <circle cx="23" cy="17.5" r="1.3" fill="#146c43" />
-                  </svg>
-                ),
-              },
-              {
-                step: 3,
-                title: "Get your build plan",
-                desc: "Receive a tailored tool stack, phased buying plan and total MVP cost estimate.",
-                icon: (
-                  <svg
-                    width="44"
-                    height="44"
-                    viewBox="0 0 44 44"
-                    fill="none"
-                    className="mx-auto"
-                  >
-                    <circle cx="13" cy="14" r="2.5" fill="#22c55e" />
-                    <circle cx="13" cy="22" r="2.5" fill="#146c43" />
-                    <circle cx="13" cy="30" r="2.5" fill="#146c43" />
-                    <path
-                      d="M20 14H33M20 22H33M20 30H29"
-                      stroke="#146c43"
-                      strokeWidth="2.4"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                ),
-              },
-              {
-                step: 4,
-                title: "Start building",
-                desc: "Use the plan, save it, export it, and check back for updated recommendations.",
-                icon: (
-                  <svg
-                    width="44"
-                    height="44"
-                    viewBox="0 0 44 44"
-                    fill="none"
-                    className="mx-auto"
-                  >
-                    <path
-                      d="M34 10L10 21L19 25L29 15L22 27L29 33L34 10Z"
-                      stroke="#146c43"
-                      strokeWidth="2.2"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                ),
-              },
-            ].map((item, idx) => (
-              <div key={item.step} className="relative flex items-stretch">
-                <div className="w-full rounded-2xl bg-white border border-[#e7f0eb] p-6 shadow-[0_6px_28px_-10px_rgba(16,68,42,0.07)] hover:border-[#b8dec8] transition flex flex-col justify-between">
-                  <div>
-                    <div className="w-8 h-8 rounded-full bg-[#dff2e7] text-[#124b32] font-bold text-sm flex items-center justify-center">
-                      {item.step}
-                    </div>
-                    <div className="my-5">{item.icon}</div>
-                    <h3 className="text-center text-lg font-bold text-[#0c1510]">
-                      {item.title}
-                    </h3>
-                    <p className="mt-2.5 text-center text-sm text-[#56695f] leading-relaxed">
-                      {item.desc}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Dashed arrow between cards on large screens */}
-                {idx < 3 && (
-                  <div className="hidden lg:flex items-center justify-center -right-5 top-1/2 -translate-y-1/2 absolute z-10 text-[#198754] font-mono text-xs pointer-events-none">
-                    <span>---&gt;</span>
-                  </div>
-                )}
+          {/* 3 Visual Interactive Step Cards */}
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Step 1 */}
+            <div className="rounded-2xl bg-[#fcfdfd] border border-[#e5ede8] p-6 shadow-xs hover:border-[#a8d8bd] transition flex flex-col justify-between">
+              <div>
+                <span className="w-7 h-7 rounded-full bg-[#dff2e7] text-[#124b32] font-bold text-xs flex items-center justify-center">
+                  1
+                </span>
+                <h3 className="mt-4 text-lg font-bold text-[#0c1510]">Describe your idea</h3>
+                <p className="mt-1.5 text-sm text-[#5d7367]">
+                  Type what you want to build in plain English.
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* SECTION 3: WHAT YOU GET (Combines second-page.png & third-page.png) */}
-      <section
-        id="features"
-        className="py-20 lg:py-24 bg-[#f5fbf7] border-t border-[#e5f0ea] relative overflow-hidden"
-      >
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.3fr] gap-12 items-center">
-            {/* Left Feature Column */}
-            <div>
-              <p className="text-xs font-bold tracking-[0.2em] text-[#146c43] uppercase">
-                WHAT YOU GET
-              </p>
-              <h2 className="mt-3 text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-[#0c1510] leading-[1.12] tracking-tight">
-                A detailed, practical build plan — not just a list of tools.
-              </h2>
-              <p className="mt-5 text-base text-[#4b5e54] leading-relaxed">
-                Get a personalized tool stack with tiered options, a phased
-                purchase plan, and a clear cost breakdown so you only spend on
-                what you need, when you need it.
-              </p>
-
-              {/* 4 Icon Feature Items (Matches third-page.png) */}
-              <div className="mt-8 space-y-5">
-                <div className="flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-full bg-[#dff2e7] text-[#124b32] flex items-center justify-center shrink-0">
-                    <Layers className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-[#0c1510]">
-                      Personalized tool stack
-                    </h3>
-                    <p className="text-sm text-[#56695f] mt-0.5">
-                      Tailored to your idea, goals and technical skill level.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-full bg-[#dff2e7] text-[#124b32] flex items-center justify-center shrink-0">
-                    <IndianRupee className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-[#0c1510]">
-                      Phased buying plan
-                    </h3>
-                    <p className="text-sm text-[#56695f] mt-0.5">
-                      Know what to buy now vs. later — avoid overspending.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-full bg-[#dff2e7] text-[#124b32] flex items-center justify-center shrink-0">
-                    <BarChart3 className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-[#0c1510]">
-                      Total MVP cost estimate
-                    </h3>
-                    <p className="text-sm text-[#56695f] mt-0.5">
-                      A clear breakdown by category and phase.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-full bg-[#dff2e7] text-[#124b32] flex items-center justify-center shrink-0">
-                    <Clock className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-[#0c1510]">
-                      Always up-to-date
-                    </h3>
-                    <p className="text-sm text-[#56695f] mt-0.5">
-                      Recommendations based on the latest tool pricing and
-                      availability.
-                    </p>
-                  </div>
+              {/* Visual Mock Element */}
+              <div className="mt-6 p-3 rounded-xl bg-white border border-[#e3ede6] text-xs text-[#334155] shadow-2xs">
+                <div className="flex items-center gap-2 font-medium">
+                  <Sparkles className="w-3.5 h-3.5 text-[#146c43]" />
+                  <span>&ldquo;AI mock interview coach...&rdquo;</span>
                 </div>
               </div>
             </div>
 
-            {/* Right Interactive Tool Stack Showcase with Callout Arrows (Matches third-page.png) */}
-            <div className="relative pt-6 pb-8">
-              {/* Top Right Callout Annotation */}
-              <div className="hidden xl:flex items-center gap-2 absolute -top-3 right-8 z-10">
-                <svg
-                  width="56"
-                  height="38"
-                  viewBox="0 0 56 38"
-                  fill="none"
-                  className="mt-2"
-                >
-                  <path
-                    d="M52 8C32 4 16 14 10 34M10 34L6 25M10 34L19 29"
-                    stroke="#157347"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <div className="text-xs font-bold text-[#124b32] leading-tight">
-                  Clear cost estimate
-                  <br />
-                  for your MVP
-                </div>
+            {/* Step 2 */}
+            <div className="rounded-2xl bg-[#fcfdfd] border border-[#e5ede8] p-6 shadow-xs hover:border-[#a8d8bd] transition flex flex-col justify-between">
+              <div>
+                <span className="w-7 h-7 rounded-full bg-[#dff2e7] text-[#124b32] font-bold text-xs flex items-center justify-center">
+                  2
+                </span>
+                <h3 className="mt-4 text-lg font-bold text-[#0c1510]">Smart diagnostic</h3>
+                <p className="mt-1.5 text-sm text-[#5d7367]">
+                  4 tailored questions on stage, tech stack, and budget.
+                </p>
               </div>
 
-              <DashboardPreviewCard defaultTab="Tool Stack" />
-
-              {/* Bottom Callout Annotation */}
-              <div className="hidden sm:flex items-center justify-center gap-2.5 mt-3">
-                <svg width="36" height="34" viewBox="0 0 36 34" fill="none">
-                  <path
-                    d="M32 30C18 30 10 20 12 4M12 4L6 11M12 4L18 11"
-                    stroke="#157347"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span className="text-xs font-bold text-[#124b32]">
-                  Phased plan so you spend only when needed
+              {/* Visual Mock Element */}
+              <div className="mt-6 grid grid-cols-2 gap-1.5 text-[11px] font-medium text-center">
+                <span className="p-1.5 rounded-lg bg-[#e8f5ee] text-[#124b32] font-semibold border border-[#cbe6d7]">
+                  💡 Idea stage
+                </span>
+                <span className="p-1.5 rounded-lg bg-white text-[#475569] border border-[#e2e8f0]">
+                  🛠️ AI-Assisted
                 </span>
               </div>
             </div>
+
+            {/* Step 3 */}
+            <div className="rounded-2xl bg-[#fcfdfd] border border-[#e5ede8] p-6 shadow-xs hover:border-[#a8d8bd] transition flex flex-col justify-between">
+              <div>
+                <span className="w-7 h-7 rounded-full bg-[#dff2e7] text-[#124b32] font-bold text-xs flex items-center justify-center">
+                  3
+                </span>
+                <h3 className="mt-4 text-lg font-bold text-[#0c1510]">Live stack &amp; budget</h3>
+                <p className="mt-1.5 text-sm text-[#5d7367]">
+                  Actionable tool stack, $0 burn rate guide, and export.
+                </p>
+              </div>
+
+              {/* Visual Mock Element */}
+              <div className="mt-6 p-2.5 rounded-xl bg-[#f2f9f5] border border-[#d6ebd9] flex items-center justify-between text-xs">
+                <span className="font-bold text-[#146c43]">Phase 1: $0/mo</span>
+                <span className="text-[11px] font-semibold text-[#0c1510]">Export Plan ↗</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 4: TRUSTED BY FOUNDERS / TESTIMONIALS (Matches fifth-page.png) */}
-      <section className="py-20 lg:py-24 bg-white">
+      {/* SECTION 3: EXPERIENTIAL STACK SIMULATOR (The Zero-Overspend Blueprint) */}
+      <section id="simulator" className="py-16 lg:py-24 bg-[#f4faf6] border-t border-[#e2eee6]">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-8">
-          <div className="text-center max-w-[680px] mx-auto relative">
-            <p className="text-xs font-bold tracking-[0.2em] text-[#146c43] uppercase">
-              TRUSTED BY FOUNDERS
-            </p>
-            <div className="relative inline-block mt-3">
-              <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-[#0c1510] leading-[1.12] tracking-tight">
-                Loved by solo founders
-                <br />
-                and small teams.
-              </h2>
-              <SparkleRays className="hidden sm:block absolute -top-6 -right-12 rotate-90" />
-            </div>
-            <p className="mt-4 text-base sm:text-lg text-[#52655b]">
-              Real founders use Buildsy to plan smarter, save money, and build
-              faster.
+          <div className="text-center max-w-[680px] mx-auto">
+            <span className="px-3 py-1 rounded-full bg-[#dcf2e5] text-[#124b32] text-xs font-bold uppercase tracking-wider">
+              INTERACTIVE BLUEPRINT
+            </span>
+            <h2 className="mt-3.5 text-3xl sm:text-4xl font-extrabold text-[#0c1510] tracking-tight">
+              See what to buy now vs. later.
+            </h2>
+            <p className="mt-3 text-base text-[#52655b]">
+              Click through the phases to see how Buildsy prevents premature software overspending.
             </p>
           </div>
 
-          {/* 3 Testimonial Cards */}
-          <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-7">
+          {/* Interactive Phase Toggle */}
+          <div className="mt-10 max-w-md mx-auto flex rounded-xl bg-white p-1 border border-[#d8ebe0] shadow-2xs">
+            {(
+              [
+                { id: "phase1", label: "Phase 1: Validate", badge: "$0/mo" },
+                { id: "phase2", label: "Phase 2: Launch", badge: "$20/mo" },
+                { id: "phase3", label: "Phase 3: Scale", badge: "$70/mo" },
+              ] as const
+            ).map((tab) => {
+              const isActive = activePhase === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActivePhase(tab.id)}
+                  className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition cursor-pointer flex flex-col items-center ${
+                    isActive
+                      ? "bg-[#0f5132] text-white shadow-xs"
+                      : "text-[#4b5e54] hover:text-[#0f5132] hover:bg-[#f3faf6]"
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span className={`text-[10px] mt-0.5 ${isActive ? "text-[#a7f3d0]" : "text-[#8ca195]"}`}>
+                    {tab.badge}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Active Phase Tools Grid */}
+          <div className="mt-8 max-w-4xl mx-auto rounded-2xl bg-white border border-[#dcece3] p-6 sm:p-8 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#edf4f0] gap-4">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-[#146c43]">
+                  {phaseData.title}
+                </span>
+                <p className="text-xs text-[#6e8277] mt-0.5">{phaseData.subtitle}</p>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <span className="text-2xl font-extrabold text-[#0c1510]">
+                    {phaseData.monthlyCost}
+                  </span>
+                  <span className="text-xs text-[#6e8277]">/month</span>
+                </div>
+                <div className="px-3 py-1.5 rounded-lg bg-[#eaf7f0] border border-[#cbe6d7] text-xs font-bold text-[#146c43]">
+                  {phaseData.savings}
+                </div>
+              </div>
+            </div>
+
+            {/* 4 Tool Cards in Current Phase */}
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {phaseData.tools.map((t) => (
+                <div
+                  key={t.name}
+                  className="p-4 rounded-xl border border-[#edf3ef] bg-[#fbfdfc] flex items-center justify-between gap-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <ToolBrandIcon logoKey={t.logo} size={32} />
+                    <div>
+                      <h4 className="text-sm font-bold text-[#0c1510]">{t.name}</h4>
+                      <p className="text-[11px] text-[#6b7280]">{t.role}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs font-bold text-[#0f5132]">{t.cost}</span>
+                    <p className="text-[10px] text-[#8ca195] max-w-[130px] truncate">{t.tier}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Strategic Advice Footer */}
+            <div className="mt-6 pt-5 border-t border-[#edf4f0] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#4b5e54]">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#146c43] shrink-0" />
+                <span>{phaseData.advice}</span>
+              </div>
+              <Link
+                href="/app"
+                className="inline-flex items-center gap-1.5 font-bold text-[#0f5132] hover:underline shrink-0"
+              >
+                <span>Customize in Studio</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4: TESTIMONIALS (Crisp, Real Founders) */}
+      <section className="py-16 lg:py-20 bg-white">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-8">
+          <div className="text-center max-w-[620px] mx-auto">
+            <span className="px-3 py-1 rounded-full bg-[#e6f4ed] text-[#146c43] text-xs font-bold uppercase tracking-wider">
+              FOUNDER STORIES
+            </span>
+            <h2 className="mt-3.5 text-3xl sm:text-4xl font-extrabold text-[#0c1510] tracking-tight">
+              Loved by solo founders &amp; small teams.
+            </h2>
+          </div>
+
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
-                quote:
-                  "“Buildsy saved me weeks of research and probably hundreds of dollars. The plan was spot on for my MVP.”",
+                quote: "“Buildsy saved me weeks of research and $500+. The phased plan kept my burn rate at zero.”",
                 name: "Rohan Mehta",
-                role: "Solo Founder, EdTech MVP",
+                role: "Solo Founder, EdTech",
                 seed: 1,
                 bg: "#d8efe3",
               },
               {
-                quote:
-                  "“Finally a tool that tells you what you actually need, not just everything. Super useful and well structured.”",
+                quote: "“Told me exactly what free tiers to use and what paid tools to delay. Super disciplined.”",
                 name: "Priya Sharma",
                 role: "Indie Hacker",
                 seed: 2,
                 bg: "#e2f2ea",
               },
               {
-                quote:
-                  "“The cost breakdown and phased plan helped us stay disciplined and focused. Highly recommend!”",
+                quote: "“The budget calculator and stack recommendations were spot-on for our first MVP.”",
                 name: "Arjun Patel",
-                role: "Co-founder, SaaS Startup",
+                role: "Co-founder, SaaS",
                 seed: 3,
                 bg: "#cfe9dc",
               },
             ].map((t) => (
               <div
                 key={t.name}
-                className="rounded-2xl bg-white border border-[#e6efe9] p-7 shadow-[0_10px_35px_-15px_rgba(16,68,42,0.08)] flex flex-col justify-between"
+                className="rounded-2xl bg-white border border-[#e6efe9] p-6 shadow-xs flex flex-col justify-between"
               >
-                <p className="text-base text-[#2b3b32] leading-relaxed">
-                  {t.quote}
-                </p>
-
-                <div className="mt-7 flex items-center gap-4">
-                  <FounderAvatar
-                    name={t.name}
-                    bg={t.bg}
-                    seed={t.seed}
-                    size={54}
-                  />
+                <div className="flex items-center gap-1 text-[#f59e0b] text-sm mb-3">
+                  <span>★</span>
+                  <span>★</span>
+                  <span>★</span>
+                  <span>★</span>
+                  <span>★</span>
+                </div>
+                <p className="text-sm text-[#2b3b32] leading-relaxed italic">{t.quote}</p>
+                <div className="mt-5 flex items-center gap-3 pt-4 border-t border-[#f0f6f2]">
+                  <FounderAvatar name={t.name} bg={t.bg} seed={t.seed} size={40} />
                   <div>
-                    <h4 className="text-base font-bold text-[#0c1510]">
-                      {t.name}
-                    </h4>
-                    <p className="text-xs text-[#5d7065] mt-0.5">{t.role}</p>
-                    <div className="flex items-center gap-1 text-[#f59e0b] text-sm mt-1">
-                      <span>★</span>
-                      <span>★</span>
-                      <span>★</span>
-                      <span>★</span>
-                      <span>★</span>
-                    </div>
+                    <h4 className="text-xs font-bold text-[#0c1510]">{t.name}</h4>
+                    <p className="text-[11px] text-[#6b7e73]">{t.role}</p>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-
-          {/* Bottom Avatar Join Strip */}
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
-            <div className="flex -space-x-3">
-              <FounderAvatar name="Founder 1" bg="#d8efe3" seed={1} size={40} />
-              <FounderAvatar name="Founder 2" bg="#e2f2ea" seed={2} size={40} />
-              <FounderAvatar name="Founder 3" bg="#cfe9dc" seed={3} size={40} />
-              <FounderAvatar name="Founder 4" bg="#d8efe3" seed={1} size={40} />
-            </div>
-            <div className="h-8 w-px bg-[#dce8e1] hidden sm:block" />
-            <p className="text-sm text-[#4b5e54]">
-              Join <strong className="font-bold text-[#0c1510]">1,000+</strong>{" "}
-              founders and builders planning their next big idea with Buildsy.
-            </p>
-          </div>
         </div>
       </section>
 
-      {/* SECTION 5: PRICING / ZERO-BIAS PROMISE */}
-      <section
-        id="pricing"
-        className="py-16 bg-[#f5fbf7] border-y border-[#e5f0ea]"
-      >
-        <div className="max-w-[1080px] mx-auto px-4 sm:px-8">
-          <div className="rounded-3xl bg-white border border-[#dcece3] p-8 sm:p-10 shadow-sm grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 items-center">
-            <div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e6f4ed] text-[#134e35] text-xs font-bold uppercase tracking-wider">
-                100% Founder-Aligned
+      {/* SECTION 5: PRICING (Zero-Bias & 100% Free) */}
+      <section id="pricing" className="py-14 bg-[#f5fbf7] border-y border-[#e2efe6]">
+        <div className="max-w-[960px] mx-auto px-4 sm:px-8">
+          <div className="rounded-3xl bg-white border border-[#d6ebe0] p-8 sm:p-10 shadow-sm flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="max-w-md">
+              <span className="px-3 py-1 rounded-full bg-[#e6f4ed] text-[#134e35] text-xs font-bold uppercase tracking-wider">
+                100% Free • Zero Affiliate Bias
               </span>
-              <h3 className="mt-3 text-2xl sm:text-3xl font-extrabold text-[#0c1510]">
-                Start building for $0. No affiliate bias, ever.
+              <h3 className="mt-3.5 text-2xl sm:text-3xl font-extrabold text-[#0c1510]">
+                Build your MVP with $0 burn rate.
               </h3>
-              <p className="mt-3 text-sm sm:text-base text-[#4b5e54] leading-relaxed">
-                Unlike generic tool directories that push expensive software for
-                affiliate commissions, Buildsy is engineered around one metric:
-                <strong> keeping your MVP burn rate as close to $0 as possible</strong>.
+              <p className="mt-2.5 text-sm text-[#52655b] leading-relaxed">
+                We never recommend expensive software for referral commissions. Buildsy is engineered around one goal: getting your MVP live for free.
               </p>
-              <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-[#2b3b32]">
-                <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-[#dff2e7] text-[#146c43] flex items-center justify-center shrink-0">
-                    <Check className="w-3.5 h-3.5" />
-                  </span>
-                  <span>Adaptive 5–8 question diagnostic</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-[#dff2e7] text-[#146c43] flex items-center justify-center shrink-0">
-                    <Check className="w-3.5 h-3.5" />
-                  </span>
-                  <span>USD ($) and India (₹ INR) support</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-[#dff2e7] text-[#146c43] flex items-center justify-center shrink-0">
-                    <Check className="w-3.5 h-3.5" />
-                  </span>
-                  <span>3-Phase purchase &amp; wait schedule</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-[#dff2e7] text-[#146c43] flex items-center justify-center shrink-0">
-                    <Check className="w-3.5 h-3.5" />
-                  </span>
-                  <span>1-click Markdown &amp; JSON export</span>
-                </div>
+
+              <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs text-[#2b3b32] font-medium">
+                <span className="flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-[#146c43]" />
+                  Adaptive 4-step diagnostic
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-[#146c43]" />
+                  USD ($) and India (₹) pricing
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-[#146c43]" />
+                  1-click Markdown export
+                </span>
               </div>
             </div>
 
-            <div className="rounded-2xl bg-[#f7fcfa] border border-[#dcece3] p-6 text-center">
-              <p className="text-xs font-bold uppercase tracking-wider text-[#146c43]">
-                MLP Early Access
-              </p>
-              <div className="mt-2 flex items-baseline justify-center gap-1">
-                <span className="text-4xl font-extrabold text-[#0c1510]">
-                  Free
-                </span>
-                <span className="text-sm text-[#56695f]">/ unlimited plans</span>
-              </div>
-              <p className="mt-2 text-xs text-[#56695f]">
-                No credit card required. Save plans locally and export anytime.
-              </p>
+            <div className="text-center sm:text-right shrink-0">
+              <div className="text-4xl font-extrabold text-[#0c1510]">$0</div>
+              <p className="text-xs text-[#6e8277] mt-0.5">Free unlimited plans</p>
               <Link
                 href="/app"
-                className="mt-5 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#134e35] hover:bg-[#0e3c28] text-white text-sm font-semibold transition"
+                className="mt-4 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0f5132] hover:bg-[#0c4128] text-white text-sm font-semibold transition shadow-xs"
               >
-                <span>Generate your build plan</span>
+                <span>Get started free</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -768,367 +648,105 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* SECTION 6: FAQs (Matches sixth-page.png) */}
-      <section id="faqs" className="py-20 lg:py-24 bg-white">
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-8">
-          <div className="text-center max-w-[680px] mx-auto">
-            <p className="text-xs font-bold tracking-[0.2em] text-[#146c43] uppercase">
-              FAQs
-            </p>
-            <h2 className="mt-3 text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-[#0c1510] tracking-tight">
-              Got questions? We’ve got answers.
+      {/* SECTION 6: FAQS (Compact 4 Items) */}
+      <section id="faqs" className="py-16 lg:py-20 bg-white">
+        <div className="max-w-[760px] mx-auto px-4 sm:px-8">
+          <div className="text-center mb-10">
+            <span className="px-3 py-1 rounded-full bg-[#e6f4ed] text-[#146c43] text-xs font-bold uppercase tracking-wider">
+              FAQS
+            </span>
+            <h2 className="mt-3.5 text-3xl font-extrabold text-[#0c1510]">
+              Frequently asked questions.
             </h2>
-            <p className="mt-3 text-base sm:text-lg text-[#52655b]">
-              Everything you need to know about Buildsy, in one place.
-            </p>
           </div>
 
-          <div className="mt-14 grid grid-cols-1 lg:grid-cols-[0.85fr_1.35fr] gap-12 items-start">
-            {/* Left Column with Contact CTA & Thinking Founder Illustration */}
-            <div className="flex flex-col justify-between">
-              <div>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-[#0c1510] leading-tight">
-                  Still curious?
-                  <br />
-                  Here are some
-                  <br />
-                  quick answers.
-                </h3>
-                <p className="mt-4 text-sm sm:text-base text-[#52655b] leading-relaxed max-w-[360px]">
-                  Can’t find what you’re looking for? Feel free to reach out —
-                  we’re happy to help.
-                </p>
-                <a
-                  href="mailto:founders@buildsy.app"
-                  className="mt-6 inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-[#e3f3eb] hover:bg-[#d2ebde] text-[#124b32] text-sm font-semibold transition"
+          <div className="space-y-3">
+            {FAQ_ITEMS.map((item) => {
+              const isOpen = openFaq === item.number;
+              return (
+                <div
+                  key={item.number}
+                  className={`rounded-2xl border transition overflow-hidden ${
+                    isOpen ? "border-[#cce5d8] bg-[#f4fbf7]" : "border-[#e7efe9] bg-white hover:border-[#cce5d8]"
+                  }`}
                 >
-                  <Mail className="w-4 h-4" />
-                  <span>Contact us</span>
-                  <ArrowRight className="w-4 h-4" />
-                </a>
-              </div>
-
-              {/* Thinking Founder Illustration matching sixth-page.png */}
-              <div className="mt-10 relative max-w-[360px]">
-                <svg
-                  viewBox="0 0 380 270"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-full h-auto"
-                >
-                  {/* Soft Mint Backdrop Blob */}
-                  <circle cx="195" cy="145" r="105" fill="#edf7f2" />
-                  {/* Thought Bubble with Question Mark */}
-                  <circle cx="205" cy="95" r="4" fill="#d3eadf" />
-                  <circle cx="222" cy="82" r="7" fill="#d3eadf" />
-                  <path
-                    d="M250 32C236 32 225 42 225 55C225 68 236 78 250 78H292C306 78 317 68 317 55C317 42 306 32 292 32H250Z"
-                    fill="#ffffff"
-                    stroke="#dcece3"
-                    strokeWidth="2"
-                  />
-                  <text
-                    x="271"
-                    y="64"
-                    textAnchor="middle"
-                    fill="#124b32"
-                    fontSize="28"
-                    fontWeight="800"
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaq(isOpen ? 0 : item.number)}
+                    className="w-full px-5 py-4 flex items-center justify-between gap-4 text-left cursor-pointer"
                   >
-                    ?
-                  </text>
-                  {/* Potted Plant */}
-                  <path
-                    d="M312 215H348L342 255H318L312 215Z"
-                    fill="#e2e8f0"
-                  />
-                  <path
-                    d="M330 215C330 188 312 170 312 170C312 170 328 168 330 192C332 165 348 162 348 162C348 162 342 188 330 215Z"
-                    fill="#157347"
-                  />
-                  {/* Founder Sweater */}
-                  <path
-                    d="M65 255C68 196 102 172 145 172C182 172 206 196 212 255H65Z"
-                    fill="#0f5132"
-                  />
-                  {/* Founder Head & Hair */}
-                  <circle cx="145" cy="128" r="28" fill="#f4a97b" />
-                  <path
-                    d="M115 124C115 98 132 88 152 92C168 95 176 108 173 124C165 112 155 108 138 110C125 112 120 118 115 124Z"
-                    fill="#111827"
-                  />
-                  {/* Thinking Hand on Chin */}
-                  <path
-                    d="M128 195L142 154"
-                    stroke="#f4a97b"
-                    strokeWidth="12"
-                    strokeLinecap="round"
-                  />
-                  {/* Laptop on Desk */}
-                  <path
-                    d="M158 195H268L254 255H144L158 195Z"
-                    fill="#cbd5e1"
-                  />
-                  <circle cx="206" cy="225" r="7" fill="#94a3b8" />
-                  <line
-                    x1="20"
-                    y1="255"
-                    x2="365"
-                    y2="255"
-                    stroke="#94a3b8"
-                    strokeWidth="2"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            {/* Right Column: Numbered Accordion (1 to 6) */}
-            <div className="space-y-3.5">
-              {FAQ_ITEMS.map((item) => {
-                const isOpen = openFaq === item.number;
-                return (
-                  <div
-                    key={item.number}
-                    className={`rounded-2xl border transition overflow-hidden ${
-                      isOpen
-                        ? "border-[#cce5d8] bg-[#f4fbf7]"
-                        : "border-[#e7efe9] bg-white hover:border-[#cce5d8]"
-                    }`}
-                  >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setOpenFaq(isOpen ? 0 : item.number)
-                      }
-                      className="w-full px-5 py-4 flex items-center justify-between gap-4 text-left cursor-pointer"
-                    >
-                      <div className="flex items-center gap-4">
-                        <span className="w-8 h-8 rounded-full bg-[#d7efe2] text-[#124b32] font-bold text-sm flex items-center justify-center shrink-0">
-                          {item.number}
-                        </span>
-                        <span className="text-base font-bold text-[#0c1510]">
-                          {item.question}
-                        </span>
-                      </div>
-                      {isOpen ? (
-                        <ChevronUp className="w-5 h-5 text-[#124b32] shrink-0" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-[#4b5e54] shrink-0" />
-                      )}
-                    </button>
-                    {isOpen && (
-                      <div className="px-5 pb-5 pl-[68px] pr-8 bg-white pt-3 border-t border-[#e5f2eb]">
-                        <p className="text-sm text-[#4b5e54] leading-relaxed">
-                          {item.answer}
-                        </p>
-                      </div>
+                    <span className="text-sm font-bold text-[#0c1510]">{item.question}</span>
+                    {isOpen ? (
+                      <ChevronUp className="w-4 h-4 text-[#124b32] shrink-0" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-[#4b5e54] shrink-0" />
                     )}
-                  </div>
-                );
-              })}
-            </div>
+                  </button>
+                  {isOpen && (
+                    <div className="px-5 pb-4 pt-1 bg-white border-t border-[#e5f2eb]">
+                      <p className="text-xs sm:text-sm text-[#4b5e54] leading-relaxed">{item.answer}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* SECTION 7: SEE IT IN ACTION / LAPTOP SHOWCASE CTA (Matches last-page.png) */}
-      <section className="py-20 lg:py-24 bg-[#f5fbf7] border-t border-[#e5f0ea] relative overflow-hidden">
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-8 text-center">
-          <p className="text-xs font-bold tracking-[0.2em] text-[#146c43] uppercase">
-            SEE IT IN ACTION
-          </p>
-          <h2 className="mt-3 text-3xl sm:text-4xl lg:text-[46px] font-extrabold text-[#0c1510] leading-[1.12] tracking-tight max-w-[760px] mx-auto">
-            Go from a raw idea to a clear plan in just{" "}
-            <span className="relative inline-block text-[#145334]">
-              a few minutes.
-              <span className="block mt-0.5">
-                <GreenBrushUnderline />
-              </span>
-            </span>
-          </h2>
-          <p className="mt-5 text-base sm:text-lg text-[#52655b] max-w-[650px] mx-auto">
-            Describe your idea, answer a few questions, and get a personalized
-            tool stack, phased plan, and total cost estimate.
-          </p>
-
-          <div className="mt-8">
-            <Link
-              href="/app"
-              className="inline-flex items-center gap-2.5 px-7 py-4 rounded-xl bg-[#134e35] hover:bg-[#0e3c28] text-white text-base font-semibold shadow-sm transition"
-            >
-              <span>Get your build plan</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {/* Laptop Frame + Floating Callout Cards (Matches last-page.png) */}
-          <div className="mt-14 relative max-w-[1040px] mx-auto">
-            {/* Left Floating Callout */}
-            <div className="hidden xl:flex flex-col items-end absolute -left-28 top-16 z-20">
-              <div className="rounded-2xl bg-[#e6f4ed] border border-[#cde6d9] px-4 py-3.5 shadow-sm flex items-center gap-3 text-left max-w-[235px]">
-                <Sparkles className="w-5 h-5 text-[#145334] shrink-0" />
-                <span className="text-xs font-semibold text-[#124b32] leading-snug">
-                  Tailored recommendations for your idea
-                </span>
+      {/* SECTION 7: FINAL CALL TO ACTION BANNER */}
+      <section className="py-16 bg-[#f4faf6]">
+        <div className="max-w-[1080px] mx-auto px-4 sm:px-8">
+          <div className="rounded-3xl bg-[#0f5132] text-white p-8 sm:p-12 text-center shadow-xl relative overflow-hidden">
+            <div className="pointer-events-none absolute -top-20 -right-20 w-72 h-72 rounded-full bg-[#1e784f]/40 blur-2xl" />
+            <div className="relative z-10 max-w-[620px] mx-auto">
+              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+                Ready to build your MVP without wasting money?
+              </h2>
+              <p className="mt-3.5 text-sm sm:text-base text-[#ccebda] leading-relaxed">
+                Describe your idea, take the 4-step diagnostic, and get your personalized stack in 2 minutes.
+              </p>
+              <div className="mt-7">
+                <Link
+                  href="/app"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-white text-[#0f5132] text-sm sm:text-base font-bold shadow-md hover:bg-[#f2faf5] transition"
+                >
+                  <span>Get your build plan</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
               </div>
-              <svg
-                width="60"
-                height="42"
-                viewBox="0 0 60 42"
-                fill="none"
-                className="mr-4 mt-2"
-              >
-                <path
-                  d="M6 6C16 26 32 34 54 32M54 32L46 26M54 32L47 39"
-                  stroke="#145334"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-
-            {/* Right Floating Callout */}
-            <div className="hidden xl:flex flex-col items-start absolute -right-28 bottom-20 z-20">
-              <svg
-                width="60"
-                height="42"
-                viewBox="0 0 60 42"
-                fill="none"
-                className="ml-4 mb-2"
-              >
-                <path
-                  d="M54 36C44 16 28 8 6 10M6 10L14 16M6 10L13 3"
-                  stroke="#145334"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <div className="rounded-2xl bg-[#e6f4ed] border border-[#cde6d9] px-4 py-3.5 shadow-sm flex items-center gap-3 text-left max-w-[225px]">
-                <BarChart3 className="w-5 h-5 text-[#145334] shrink-0" />
-                <span className="text-xs font-semibold text-[#124b32] leading-snug">
-                  Clear cost breakdown before you spend
-                </span>
-              </div>
-            </div>
-
-            {/* MacBook Bezel */}
-            <div className="mx-auto max-w-[880px] rounded-t-[26px] bg-[#141917] p-3 sm:p-4 shadow-2xl border-4 border-[#262f2b]">
-              {/* Camera Notch */}
-              <div className="w-24 h-3 bg-[#0a0d0c] mx-auto rounded-b-lg mb-2 flex items-center justify-center">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#1f2937]" />
-              </div>
-              <DashboardPreviewCard defaultTab="Overview" compact />
-            </div>
-            {/* Laptop Base Chin */}
-            <div className="mx-auto max-w-[960px] h-5 bg-gradient-to-b from-[#d1d5db] to-[#9ca3af] rounded-b-2xl shadow-md flex items-center justify-center">
-              <div className="w-28 h-1.5 rounded-full bg-[#6b7280]/50" />
             </div>
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-white border-t border-[#e5f0ea] py-12">
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div>
-            <BuildsyLogo size="md" />
-            <p className="text-xs text-[#617369] mt-1.5">
-              Turn your raw product idea into a concrete, budget-disciplined
-              build plan.
-            </p>
+      <footer className="bg-white border-t border-[#e5f0ea] py-10">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-[#52655b]">
+          <div className="flex items-center gap-3">
+            <BuildsyLogo size="sm" />
+            <span>— Lean MVP planning for founders.</span>
           </div>
-          <div className="flex flex-wrap items-center gap-6 text-xs font-medium text-[#4b5e54]">
-            <Link href="/app" className="hover:text-[#124b32]">
-              Build Plan Studio
+          <div className="flex items-center gap-6 font-medium">
+            <Link href="/app" className="hover:text-[#0f5132]">
+              Studio
             </Link>
-            <a href="#how-it-works" className="hover:text-[#124b32]">
+            <a href="#how-it-works" className="hover:text-[#0f5132]">
               How it works
             </a>
-            <a href="#features" className="hover:text-[#124b32]">
-              Features
+            <a href="#simulator" className="hover:text-[#0f5132]">
+              Simulator
             </a>
-            <a href="#faqs" className="hover:text-[#124b32]">
+            <a href="#pricing" className="hover:text-[#0f5132]">
+              Pricing
+            </a>
+            <a href="#faqs" className="hover:text-[#0f5132]">
               FAQs
             </a>
           </div>
-          <p className="text-xs text-[#6c7d73]">
-            © {new Date().getFullYear()} Buildsy. Built for solo founders &amp;
-            small teams.
-          </p>
+          <p>© {new Date().getFullYear()} Buildsy. All rights reserved.</p>
         </div>
       </footer>
-
-      {/* WATCH DEMO (2 MIN) INTERACTIVE MODAL */}
-      {showDemoModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 border border-[#dcece3] shadow-2xl relative">
-            <button
-              type="button"
-              onClick={() => setShowDemoModal(false)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-[#f2f7f4] hover:bg-[#e2eee7] flex items-center justify-center text-[#37473f] cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e6f4ed] text-[#134e35] text-xs font-semibold">
-              Interactive Walkthrough
-            </span>
-            <h3 className="mt-3 text-2xl font-extrabold text-[#0c1510]">
-              How Buildsy saves founders $500+ on their MVP
-            </h3>
-            <div className="mt-5 space-y-4 text-sm text-[#37473f]">
-              <div className="p-4 rounded-xl bg-[#f7fcfa] border border-[#e3efe8]">
-                <p className="font-bold text-[#0c1510]">
-                  1. Adaptive Diagnostic (Not a static directory)
-                </p>
-                <p className="mt-1 text-xs text-[#52655b]">
-                  Describe your product in plain English. Buildsy asks 6
-                  targeted follow-up questions about your coding comfort, target
-                  geography (India UPI vs US Stripe), and monthly budget cap.
-                </p>
-              </div>
-              <div className="p-4 rounded-xl bg-[#f7fcfa] border border-[#e3efe8]">
-                <p className="font-bold text-[#0c1510]">
-                  2. Live Tiered Tool Stack (Free vs. Low-Cost vs. Scale)
-                </p>
-                <p className="mt-1 text-xs text-[#52655b]">
-                  Compare 3 options per category and click{" "}
-                  <strong className="text-[#124b32]">&ldquo;Use this&rdquo;</strong> to
-                  watch your total monthly and 3-month MVP budget recalculate in
-                  real time.
-                </p>
-              </div>
-              <div className="p-4 rounded-xl bg-[#f7fcfa] border border-[#e3efe8]">
-                <p className="font-bold text-[#0c1510]">
-                  3. Phased Buying Plan (What NOT to buy yet)
-                </p>
-                <p className="mt-1 text-xs text-[#52655b]">
-                  See exactly what to use for $0 in Phase 1 (Weeks 1–4) and
-                  which subscriptions to delay until Phase 2 (Launch) or Phase 3
-                  ($2k+ MRR).
-                </p>
-              </div>
-            </div>
-            <div className="mt-6 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setShowDemoModal(false)}
-                className="px-4 py-2.5 rounded-xl border border-[#dce5e0] text-xs font-semibold text-[#4b5e54] hover:bg-[#f6faf8] cursor-pointer"
-              >
-                Close
-              </button>
-              <Link
-                href="/app"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#134e35] hover:bg-[#0e3c28] text-white text-xs font-semibold"
-              >
-                <span>Launch Buildsy Studio now</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

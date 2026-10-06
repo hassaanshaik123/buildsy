@@ -8,18 +8,42 @@ import {
   Bookmark,
   Settings,
   Upload,
+  Check,
 } from "lucide-react";
-import { BuildsyLogo, ToolBrandIcon } from "@/components/ToolLogos";
+import { BuildsyLogo, ToolBrandIcon, BudgetDonutChart } from "@/components/ToolLogos";
 
-export function LaptopMockup() {
+interface LaptopMockupProps {
+  ideaTitle?: string;
+  onSelectIdea?: (idea: string) => void;
+}
+
+export function LaptopMockup({
+  ideaTitle = "AI MVP Build Plan",
+}: LaptopMockupProps) {
   const [activeTab, setActiveTab] = useState<
     "Overview" | "Tool Stack" | "Phases" | "Cost Breakdown"
   >("Overview");
 
+  // Interactive tool selection inside the laptop screen
+  const [toolsState, setToolsState] = useState<{
+    nextjs: boolean;
+    supabase: boolean;
+    stripe: boolean;
+    figma: boolean;
+  }>({
+    nextjs: true,
+    supabase: true,
+    stripe: true,
+    figma: true,
+  });
+
+  // Calculate live monthly cost in mockup
+  const monthlyCost = toolsState.stripe ? 20 : 0;
+
   return (
     <div className="relative w-full max-w-[620px] mx-auto select-none">
       {/* Hand-drawn Green Doodle Arrow + Handwritten Callout on Top Right */}
-      <div className="absolute -top-12 right-0 sm:-right-4 z-20 flex items-center gap-2 pointer-events-none">
+      <div className="absolute -top-11 right-0 sm:-right-4 z-20 flex items-center gap-2 pointer-events-none">
         <div className="font-handwriting text-lg sm:text-[22px] text-[#15803d] font-bold leading-tight text-right -rotate-3">
           Your personalized
           <br />
@@ -88,6 +112,14 @@ export function LaptopMockup() {
                   </div>
                 </div>
               </div>
+
+              {/* Live Cost Ticker in Sidebar */}
+              <div className="p-2 rounded-lg bg-[#f0f8f3] border border-[#d6ebe0] text-[9px] text-[#0f5132]">
+                <p className="font-semibold text-[#0c1510]">MVP Est. Cost</p>
+                <p className="text-xs font-extrabold text-[#0f5132] mt-0.5">
+                  ${monthlyCost}/mo
+                </p>
+              </div>
             </aside>
 
             {/* Main Content inside Laptop Screen */}
@@ -95,20 +127,25 @@ export function LaptopMockup() {
               <div>
                 {/* Header Row: "Your Build Plan" + "Export Plan" */}
                 <div className="flex items-center justify-between gap-2 pb-2.5">
-                  <h3 className="text-xs sm:text-sm font-bold text-[#0c1510] tracking-tight">
-                    Your Build Plan
-                  </h3>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-[#e2e8f0] bg-white text-[10px] font-medium text-[#334155] shadow-2xs hover:bg-[#f8fafc]"
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xs sm:text-sm font-bold text-[#0c1510] tracking-tight">
+                      Your Build Plan
+                    </h3>
+                    <span className="hidden sm:inline-block px-1.5 py-0.2 rounded bg-[#e6f5ed] text-[#0f5132] text-[9px] font-bold">
+                      {ideaTitle}
+                    </span>
+                  </div>
+                  <Link
+                    href="/app"
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-[#e2e8f0] bg-white text-[10px] font-medium text-[#334155] shadow-2xs hover:bg-[#f8fafc] transition"
                   >
                     <Upload className="w-2.5 h-2.5 rotate-180 text-[#64748b]" />
                     <span>Export Plan</span>
-                  </button>
+                  </Link>
                 </div>
 
-                {/* Tabs Row (Matches mockup: Overview active with green underline) */}
-                <div className="flex items-center gap-4 border-b border-[#f1f5f3] text-[10px] font-medium mb-3">
+                {/* Tabs Row (Overview | Tool Stack | Phases | Cost Breakdown) */}
+                <div className="flex items-center gap-3.5 border-b border-[#f1f5f3] text-[10px] font-medium mb-3">
                   {(
                     ["Overview", "Tool Stack", "Phases", "Cost Breakdown"] as const
                   ).map((tab) => {
@@ -130,130 +167,281 @@ export function LaptopMockup() {
                   })}
                 </div>
 
-                {/* Section Heading: "Recommended Tools" */}
-                <h4 className="text-[11px] font-bold text-[#0c1510] mb-2">
-                  Recommended Tools
-                </h4>
+                {/* TAB 1: OVERVIEW (Matches 1st-Hero-Page.png) */}
+                {activeTab === "Overview" && (
+                  <div>
+                    <h4 className="text-[11px] font-bold text-[#0c1510] mb-2 flex items-center justify-between">
+                      <span>Recommended Tools</span>
+                      <span className="text-[9px] font-normal text-[#64748b]">
+                        Interactive preview • Click to toggle
+                      </span>
+                    </h4>
 
-                {/* 4 Tool Rows (Next.js, Supabase, Stripe, Figma) matching mockup */}
-                <div className="space-y-1.5">
-                  {/* Row 1: Next.js */}
-                  <div className="p-1.5 sm:p-2 rounded-lg border border-[#edf2ef] bg-[#fcfdfd] flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-[90px]">
-                      <div className="w-6 h-6 rounded-md bg-[#000000] text-white flex items-center justify-center font-bold text-[10px]">
-                        N
+                    {/* 4 Tool Rows (Next.js, Supabase, Stripe, Figma) */}
+                    <div className="space-y-1.5">
+                      {/* Row 1: Next.js */}
+                      <div className="p-1.5 sm:p-2 rounded-lg border border-[#edf2ef] bg-[#fcfdfd] flex items-center justify-between gap-2 hover:border-[#bbf7d0] transition">
+                        <div className="flex items-center gap-2 min-w-[90px]">
+                          <div className="w-6 h-6 rounded-md bg-[#000000] text-white flex items-center justify-center font-bold text-[10px]">
+                            N
+                          </div>
+                          <span className="text-[10px] font-bold text-[#0c1510]">
+                            Next.js
+                          </span>
+                        </div>
+
+                        <div className="hidden sm:flex flex-col gap-1 flex-1 px-2">
+                          <div className="h-1.5 bg-[#e2e8f0] rounded-full w-24" />
+                          <div className="h-1 bg-[#edf2f7] rounded-full w-14" />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-full bg-[#e6f5ed] text-[#0f5132] text-[9px] font-semibold">
+                            Free
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setToolsState((s) => ({ ...s, nextjs: !s.nextjs }))
+                            }
+                            className={`px-2 py-1 rounded-md text-[9px] font-semibold transition cursor-pointer flex items-center gap-1 ${
+                              toolsState.nextjs
+                                ? "bg-[#0f5132] text-white"
+                                : "border border-[#cbd5e1] text-[#334155] hover:border-[#0f5132]"
+                            }`}
+                          >
+                            {toolsState.nextjs && <Check className="w-2.5 h-2.5" />}
+                            {toolsState.nextjs ? "Active" : "Use this"}
+                          </button>
+                        </div>
                       </div>
-                      <span className="text-[10px] font-bold text-[#0c1510]">
-                        Next.js
-                      </span>
-                    </div>
 
-                    {/* Skeleton progress lines */}
-                    <div className="hidden sm:flex flex-col gap-1 flex-1 px-2">
-                      <div className="h-1.5 bg-[#e2e8f0] rounded-full w-24" />
-                      <div className="h-1 bg-[#edf2f7] rounded-full w-14" />
-                    </div>
+                      {/* Row 2: Supabase */}
+                      <div className="p-1.5 sm:p-2 rounded-lg border border-[#edf2ef] bg-[#fcfdfd] flex items-center justify-between gap-2 hover:border-[#bbf7d0] transition">
+                        <div className="flex items-center gap-2 min-w-[90px]">
+                          <div className="w-6 h-6 rounded-md bg-[#e6f7ef] flex items-center justify-center">
+                            <ToolBrandIcon logoKey="supabase" size={16} />
+                          </div>
+                          <span className="text-[10px] font-bold text-[#0c1510]">
+                            Supabase
+                          </span>
+                        </div>
 
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-full bg-[#e6f5ed] text-[#0f5132] text-[9px] font-semibold">
-                        Free
-                      </span>
-                      <Link
-                        href="/app"
-                        className="px-2 py-1 rounded-md border border-[#cbd5e1] hover:border-[#0f5132] text-[9px] font-semibold text-[#1e293b] hover:text-[#0f5132] transition bg-white"
-                      >
-                        Use this
-                      </Link>
+                        <div className="hidden sm:flex flex-col gap-1 flex-1 px-2">
+                          <div className="h-1.5 bg-[#e2e8f0] rounded-full w-20" />
+                          <div className="h-1 bg-[#edf2f7] rounded-full w-12" />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-full bg-[#e6f5ed] text-[#0f5132] text-[9px] font-semibold">
+                            Free
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setToolsState((s) => ({
+                                ...s,
+                                supabase: !s.supabase,
+                              }))
+                            }
+                            className={`px-2 py-1 rounded-md text-[9px] font-semibold transition cursor-pointer flex items-center gap-1 ${
+                              toolsState.supabase
+                                ? "bg-[#0f5132] text-white"
+                                : "border border-[#cbd5e1] text-[#334155] hover:border-[#0f5132]"
+                            }`}
+                          >
+                            {toolsState.supabase && (
+                              <Check className="w-2.5 h-2.5" />
+                            )}
+                            {toolsState.supabase ? "Active" : "Use this"}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Row 3: Stripe */}
+                      <div className="p-1.5 sm:p-2 rounded-lg border border-[#edf2ef] bg-[#fcfdfd] flex items-center justify-between gap-2 hover:border-[#bbf7d0] transition">
+                        <div className="flex items-center gap-2 min-w-[90px]">
+                          <div className="w-6 h-6 rounded-md bg-[#635bff] text-white flex items-center justify-center font-extrabold text-[10px]">
+                            S
+                          </div>
+                          <span className="text-[10px] font-bold text-[#0c1510]">
+                            Stripe
+                          </span>
+                        </div>
+
+                        <div className="hidden sm:flex flex-col gap-1 flex-1 px-2">
+                          <div className="h-1.5 bg-[#e2e8f0] rounded-full w-28" />
+                          <div className="h-1 bg-[#edf2f7] rounded-full w-16" />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-full bg-[#e6f5ed] text-[#0f5132] text-[9px] font-semibold">
+                            $20/mo
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setToolsState((s) => ({ ...s, stripe: !s.stripe }))
+                            }
+                            className={`px-2 py-1 rounded-md text-[9px] font-semibold transition cursor-pointer flex items-center gap-1 ${
+                              toolsState.stripe
+                                ? "bg-[#0f5132] text-white"
+                                : "border border-[#cbd5e1] text-[#334155] hover:border-[#0f5132]"
+                            }`}
+                          >
+                            {toolsState.stripe && (
+                              <Check className="w-2.5 h-2.5" />
+                            )}
+                            {toolsState.stripe ? "Active" : "Use this"}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Row 4: Figma */}
+                      <div className="p-1.5 sm:p-2 rounded-lg border border-[#edf2ef] bg-[#fcfdfd] flex items-center justify-between gap-2 hover:border-[#bbf7d0] transition">
+                        <div className="flex items-center gap-2 min-w-[90px]">
+                          <div className="w-6 h-6 rounded-md bg-[#1e1e1e] flex items-center justify-center">
+                            <ToolBrandIcon logoKey="figma" size={14} />
+                          </div>
+                          <span className="text-[10px] font-bold text-[#0c1510]">
+                            Figma
+                          </span>
+                        </div>
+
+                        <div className="hidden sm:flex flex-col gap-1 flex-1 px-2">
+                          <div className="h-1.5 bg-[#e2e8f0] rounded-full w-24" />
+                          <div className="h-1 bg-[#edf2f7] rounded-full w-14" />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-full bg-[#e6f5ed] text-[#0f5132] text-[9px] font-semibold">
+                            Free
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setToolsState((s) => ({ ...s, figma: !s.figma }))
+                            }
+                            className={`px-2 py-1 rounded-md text-[9px] font-semibold transition cursor-pointer flex items-center gap-1 ${
+                              toolsState.figma
+                                ? "bg-[#0f5132] text-white"
+                                : "border border-[#cbd5e1] text-[#334155] hover:border-[#0f5132]"
+                            }`}
+                          >
+                            {toolsState.figma && <Check className="w-2.5 h-2.5" />}
+                            {toolsState.figma ? "Active" : "Use this"}
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                )}
 
-                  {/* Row 2: Supabase */}
-                  <div className="p-1.5 sm:p-2 rounded-lg border border-[#edf2ef] bg-[#fcfdfd] flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-[90px]">
-                      <div className="w-6 h-6 rounded-md bg-[#e6f7ef] flex items-center justify-center">
-                        <ToolBrandIcon logoKey="supabase" size={16} />
+                {/* TAB 2: TOOL STACK */}
+                {activeTab === "Tool Stack" && (
+                  <div className="space-y-2 py-1">
+                    <div className="p-2.5 rounded-xl bg-[#f8faf9] border border-[#e5ece8] flex items-center justify-between text-[10px]">
+                      <div>
+                        <span className="font-bold text-[#0c1510]">
+                          Frontend: Next.js + Tailwind
+                        </span>
+                        <p className="text-[#64748b] text-[9px]">
+                          Free on Vercel Hobby tier • Zero upfront cost
+                        </p>
                       </div>
-                      <span className="text-[10px] font-bold text-[#0c1510]">
-                        Supabase
+                      <span className="px-2 py-0.5 rounded bg-[#e6f5ed] text-[#0f5132] font-bold">
+                        $0
                       </span>
                     </div>
 
-                    <div className="hidden sm:flex flex-col gap-1 flex-1 px-2">
-                      <div className="h-1.5 bg-[#e2e8f0] rounded-full w-20" />
-                      <div className="h-1 bg-[#edf2f7] rounded-full w-12" />
+                    <div className="p-2.5 rounded-xl bg-[#f8faf9] border border-[#e5ece8] flex items-center justify-between text-[10px]">
+                      <div>
+                        <span className="font-bold text-[#0c1510]">
+                          Database: Supabase Postgres
+                        </span>
+                        <p className="text-[#64748b] text-[9px]">
+                          Includes 50k MAU auth + 500MB DB space free
+                        </p>
+                      </div>
+                      <span className="px-2 py-0.5 rounded bg-[#e6f5ed] text-[#0f5132] font-bold">
+                        $0
+                      </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-full bg-[#e6f5ed] text-[#0f5132] text-[9px] font-semibold">
-                        Free
+                    <div className="p-2.5 rounded-xl bg-[#f8faf9] border border-[#e5ece8] flex items-center justify-between text-[10px]">
+                      <div>
+                        <span className="font-bold text-[#0c1510]">
+                          Payments: Stripe Checkout
+                        </span>
+                        <p className="text-[#64748b] text-[9px]">
+                          2.9% + 30¢/txn • No fixed recurring fees
+                        </p>
+                      </div>
+                      <span className="px-2 py-0.5 rounded bg-[#e6f5ed] text-[#0f5132] font-bold">
+                        $0/mo base
                       </span>
-                      <Link
-                        href="/app"
-                        className="px-2 py-1 rounded-md border border-[#cbd5e1] hover:border-[#0f5132] text-[9px] font-semibold text-[#1e293b] hover:text-[#0f5132] transition bg-white"
-                      >
-                        Use this
-                      </Link>
                     </div>
                   </div>
+                )}
 
-                  {/* Row 3: Stripe */}
-                  <div className="p-1.5 sm:p-2 rounded-lg border border-[#edf2ef] bg-[#fcfdfd] flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-[90px]">
-                      <div className="w-6 h-6 rounded-md bg-[#635bff] text-white flex items-center justify-center font-extrabold text-[10px]">
-                        S
+                {/* TAB 3: PHASES */}
+                {activeTab === "Phases" && (
+                  <div className="space-y-2 py-1 text-[10px]">
+                    <div className="p-2.5 rounded-xl border border-[#d1ebd9] bg-[#f4fbf7]">
+                      <div className="flex items-center justify-between font-bold text-[#0f5132]">
+                        <span>Phase 1: Build &amp; Validate (W1–4)</span>
+                        <span>$0/mo</span>
                       </div>
-                      <span className="text-[10px] font-bold text-[#0c1510]">
-                        Stripe
-                      </span>
+                      <p className="text-[#526058] text-[9px] mt-0.5">
+                        Free tiers only: Next.js, Supabase, Figma &amp; GitHub
+                      </p>
                     </div>
 
-                    <div className="hidden sm:flex flex-col gap-1 flex-1 px-2">
-                      <div className="h-1.5 bg-[#e2e8f0] rounded-full w-28" />
-                      <div className="h-1 bg-[#edf2f7] rounded-full w-16" />
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-full bg-[#e6f5ed] text-[#0f5132] text-[9px] font-semibold">
-                        $20/mo
-                      </span>
-                      <Link
-                        href="/app"
-                        className="px-2 py-1 rounded-md border border-[#cbd5e1] hover:border-[#0f5132] text-[9px] font-semibold text-[#1e293b] hover:text-[#0f5132] transition bg-white"
-                      >
-                        Use this
-                      </Link>
+                    <div className="p-2.5 rounded-xl border border-[#e2e8f0] bg-white">
+                      <div className="flex items-center justify-between font-bold text-[#0c1510]">
+                        <span>Phase 2: Launch MVP (M2–3)</span>
+                        <span>$20/mo</span>
+                      </div>
+                      <p className="text-[#64748b] text-[9px] mt-0.5">
+                        Custom domain + transactional email + analytics
+                      </p>
                     </div>
                   </div>
+                )}
 
-                  {/* Row 4: Figma */}
-                  <div className="p-1.5 sm:p-2 rounded-lg border border-[#edf2ef] bg-[#fcfdfd] flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-[90px]">
-                      <div className="w-6 h-6 rounded-md bg-[#1e1e1e] flex items-center justify-center">
-                        <ToolBrandIcon logoKey="figma" size={14} />
+                {/* TAB 4: COST BREAKDOWN */}
+                {activeTab === "Cost Breakdown" && (
+                  <div className="py-1 flex items-center justify-around gap-3">
+                    <BudgetDonutChart
+                      size={86}
+                      values={{
+                        Development: 40,
+                        Design: 20,
+                        "Database & Infra": 20,
+                        Marketing: 10,
+                        Other: 10,
+                      }}
+                    />
+                    <div className="space-y-1 text-[9px]">
+                      <div className="flex items-center justify-between gap-4 font-semibold">
+                        <span className="text-[#10b981]">● Development</span>
+                        <span>$0</span>
                       </div>
-                      <span className="text-[10px] font-bold text-[#0c1510]">
-                        Figma
-                      </span>
-                    </div>
-
-                    <div className="hidden sm:flex flex-col gap-1 flex-1 px-2">
-                      <div className="h-1.5 bg-[#e2e8f0] rounded-full w-24" />
-                      <div className="h-1 bg-[#edf2f7] rounded-full w-14" />
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-full bg-[#e6f5ed] text-[#0f5132] text-[9px] font-semibold">
-                        Free
-                      </span>
-                      <Link
-                        href="/app"
-                        className="px-2 py-1 rounded-md border border-[#cbd5e1] hover:border-[#0f5132] text-[9px] font-semibold text-[#1e293b] hover:text-[#0f5132] transition bg-white"
-                      >
-                        Use this
-                      </Link>
+                      <div className="flex items-center justify-between gap-4 font-semibold">
+                        <span className="text-[#0ea5e9]">● Database</span>
+                        <span>$0</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-4 font-semibold">
+                        <span className="text-[#635bff]">● Payments</span>
+                        <span>$20</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-4 font-bold border-t border-[#f1f5f3] pt-0.5">
+                        <span>Total Month 1:</span>
+                        <span className="text-[#0f5132]">${monthlyCost}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
